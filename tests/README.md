@@ -15,3 +15,15 @@ not establish playing strength or prove equivalence on every possible board.
 These optimizations preserve the existing move rules and evaluator. Existing
 rule interpretation and quiescence behavior have not been independently
 validated against an official draughts rules reference.
+
+Run `node tests/ui.cjs` to verify incremental worker results, selecting and
+playing a move during analysis, ignoring stale replies after cancellation,
+and valid SVG route geometry in both board orientations. This uses a minimal
+DOM harness, not a browser rendering test. The worker also runs a real 500 ms
+search and reports first-hint latency and final response time.
+
+The UI displays each completed search iteration while retaining the original
+4.5-second analysis budget. Early hints are provisional; their move can change
+as deeper iterations finish. Selecting a piece, undoing, starting a game or
+changing sides terminates the old worker so obsolete analysis cannot overwrite
+the current board's hint.

@@ -97,6 +97,17 @@ function moves(b,p) {
   const caps=generateCaptures(b,p);
   return caps.length?caps:generateQuiet(b,p);
 }
+function hasQuietMove(b,p) {
+  for(let i=0;i<64;i++) {
+    if(side(b[i])!==p)continue;
+    const r=i>>3,c=i&7;
+    for(const [dr,dc] of DIRS) {
+      if(!king(b[i])&&dr!==(p===1?-1:1))continue;
+      if(inside(r+dr,c+dc)&&b[idx(r+dr,c+dc)]===0)return true;
+    }
+  }
+  return false;
+}
 // Preserve the evaluator's floating-point operation order while caching
 // position-independent piece values and king activity terms.
 const pieceValues=Array.from({length:5},()=>new Float64Array(64));
@@ -186,9 +197,13 @@ function search(b,p,depth,alpha,beta,ply) {
     else beta=Math.min(beta,sc);
     if(alpha>=beta)return sc;
   }
+  if(depth<=0) {
+    const caps=generateCaptures(b,p);
+    if(!caps.length&&!hasQuietMove(b,p))return -MATE+ply;
+    return quiescence(b,p,alpha,beta,0,caps);
+  }
   let ms=moves(b,p);
   if(!ms.length)return -MATE+ply;
-  if(depth<=0)return quiescence(b,p,alpha,beta,0,ms[0].captures.length?ms:[]);
   const ttMove=entry?entry.best:0;orderMoves(ms,ttMove,ply);
   let best=-INF,bestMove=0;
   for(const m of ms) {
@@ -211,7 +226,7 @@ function search(b,p,depth,alpha,beta,ply) {
   tt.set(key,{depth,score:stored,flag,best:bestMove});
   return best;
 }
-function choose(b,p,ms,budget) {
+function choose(b,p,ms,budget,onProgress) {
   if(!ms.length)return null;
   if(ms.length===1)return {...ms[0],depth:0,nodes:0,score:0};
   deadline=performance.now()+budget;nodes=0;aborted=false;
@@ -228,6 +243,7 @@ function choose(b,p,ms,budget) {
     }
     if(aborted)break;
     best=localBest;bestScore=localScore;completed=depth;
+    if(onProgress)onProgress({...best,depth:completed,nodes,score:bestScore,elapsed:Math.round(performance.now()-(deadline-budget))});
     if(Math.abs(bestScore)>MATE-100)break;
   }
   return {...best,depth:completed,nodes,score:bestScore,elapsed:Math.round(performance.now()-(deadline-budget))};
@@ -237,8 +253,9 @@ self.onmessage=(e)=>{
   try {
     if(!Array.isArray(board)||board.length!==64)throw new Error("Некорректная доска");
     const ms=moves(board,player);
-    const result=choose(board,player,ms,Math.max(500,Math.min(10000,budgetMs)));
+    const report=(result,partial)=>self.postMessage({requestId,partial,move:{from:result.from,to:result.to,path:result.path,captures:result.captures,depth:result.depth,nodes:result.nodes,score:result.score,elapsed:result.elapsed}});
+    const result=choose(board,player,ms,Math.max(500,Math.min(10000,budgetMs)),result=>report(result,true));
     if(!result){self.postMessage({requestId,move:null});return;}
-    self.postMessage({requestId,move:{from:result.from,to:result.to,path:result.path,captures:result.captures,depth:result.depth,nodes:result.nodes,score:result.score,elapsed:result.elapsed}});
+    report(result,false);
   } catch(err) { self.postMessage({requestId,error:String(err&&err.message||err)}); }
 };

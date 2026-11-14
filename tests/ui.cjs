@@ -19,7 +19,7 @@ const document={getElementById(id){if(!elements.has(id))elements.set(id,new Elem
 const html=fs.readFileSync('index.html','utf8');
 assert.ok(!html.includes('ANALYZATOR PRO'));
 assert.ok(!/[⚪⚫✦↶⟳]/u.test(html));
-assert.match(html,/<marker[^>]*id="ah"[^>]*>[\s\S]*?stroke="#93c5fd"/);
+assert.match(html,/<marker[^>]*id="ah"[^>]*>[\s\S]*?fill="#60a5fa"/);
 const script=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].at(-1)[1];
 const context=vm.createContext({document,window:{},Worker,setTimeout(){}});
 vm.runInContext(script,context);

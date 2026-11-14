@@ -22,45 +22,45 @@ function generateCaptures(b, player) {
   for(let from=0;from<64;from++) {
     const piece=b[from];
     if(side(piece)!==player) continue;
-    const path=[], victims=[];
-    function dfs(pos, cur, movingPiece, capturedMask) {
+    const path=[], victims=[], cur=b.slice();
+    function dfs(pos, movingPiece) {
       const [r,c]=rc(pos); let extended=false;
       for(const [dr,dc] of DIRS) {
         if(!king(movingPiece)) {
           const mr=r+dr, mc=c+dc, lr=r+2*dr, lc=c+2*dc;
           if(!inside(mr,mc)||!inside(lr,lc)) continue;
           const victim=idx(mr,mc), land=idx(lr,lc);
-          if(side(cur[victim])!==-player || (capturedMask.has(victim)) || cur[land]!==0) continue;
+          if(side(cur[victim])!==-player || cur[land]!==0) continue;
           extended=true;
-          const nb=cur.slice(); nb[pos]=0; nb[victim]=0;
+          const taken=cur[victim]; cur[pos]=0; cur[victim]=0;
           let np=movingPiece;
           if((player===1&&lr===0)||(player===-1&&lr===7)) np=player*2;
-          nb[land]=np;
-          const nm=new Set(capturedMask); nm.add(victim);
+          cur[land]=np;
           path.push(land); victims.push(victim);
-          dfs(land,nb,np,nm);
+          dfs(land,np);
+          cur[land]=0; cur[victim]=taken; cur[pos]=movingPiece;
           path.pop(); victims.pop();
         } else {
           let rr=r+dr, cc=c+dc;
           while(inside(rr,cc)&&cur[idx(rr,cc)]===0){rr+=dr;cc+=dc;}
           if(!inside(rr,cc)) continue;
           const victim=idx(rr,cc);
-          if(side(cur[victim])!==-player || capturedMask.has(victim)) continue;
+          if(side(cur[victim])!==-player) continue;
           rr+=dr;cc+=dc;
           while(inside(rr,cc)&&cur[idx(rr,cc)]===0) {
             const land=idx(rr,cc); extended=true;
-            const nb=cur.slice();nb[pos]=0;nb[victim]=0;nb[land]=movingPiece;
-            const nm=new Set(capturedMask);nm.add(victim);
+            const taken=cur[victim];cur[pos]=0;cur[victim]=0;cur[land]=movingPiece;
             path.push(land);victims.push(victim);
-            dfs(land,nb,movingPiece,nm);
+            dfs(land,movingPiece);
+            cur[land]=0;cur[victim]=taken;cur[pos]=movingPiece;
             path.pop();victims.pop();
             rr+=dr;cc+=dc;
           }
         }
       }
-      if(!extended && victims.length) result.push({from,to:pos,path:path.slice(),captures:victims.slice(),board:cur});
+      if(!extended && victims.length) result.push({from,to:pos,path:path.slice(),captures:victims.slice(),board:cur.slice()});
     }
-    dfs(from,b.slice(),piece,new Set());
+    dfs(from,piece);
   }
   return result;
 }
@@ -97,30 +97,41 @@ function moves(b,p) {
   const caps=generateCaptures(b,p);
   return caps.length?caps:generateQuiet(b,p);
 }
-function evalWhite(b) {
-  let score=0, wm=0,bm=0,wk=0,bk=0;
-  for(let i=0;i<64;i++) {
-    const p=b[i]; if(!p)continue;
-    const [r,c]=rc(i), s=side(p), k=king(p);
+// Preserve the evaluator's floating-point operation order while caching
+// position-independent piece values and king activity terms.
+const pieceValues=Array.from({length:5},()=>new Float64Array(64));
+const kingActivity=new Float64Array(64);
+for(let i=0;i<64;i++) {
+  const r=i>>3,c=i&7;
+  kingActivity[i]=0.025*(3.5-Math.abs(3.5-r)+3.5-Math.abs(3.5-c));
+  for(const p of [-2,-1,1,2]) {
+    const s=side(p),k=king(p);
     let v=k?3.25:1.0;
     if(!k) {
-      v += (s===1?(7-r):r)*0.035;
+      v+=(s===1?(7-r):r)*0.035;
       if(c>=2&&c<=5)v+=0.045;
       if(r>=2&&r<=5)v+=0.025;
       if((s===1&&r===1)||(s===-1&&r===6))v+=0.12;
     } else {
       if(r>=2&&r<=5&&c>=2&&c<=5)v+=0.10;
-      const edge=(r===0||r===7||c===0||c===7);
-      if(edge)v-=0.035;
+      if(r===0||r===7||c===0||c===7)v-=0.035;
     }
-    score += s*v;
+    pieceValues[p+2][i]=s*v;
+  }
+}
+function evalWhite(b) {
+  let score=0, wm=0,bm=0,wk=0,bk=0;
+  for(let i=0;i<64;i++) {
+    const p=b[i]; if(!p)continue;
+    const s=side(p), k=king(p);
+    score += pieceValues[p+2][i];
     if(s===1){if(k)wk++;else wm++;} else {if(k)bk++;else bm++;}
   }
   // A small endgame king activity bonus.
   const men=wm+bm;
   if(men<=4) {
     for(let i=0;i<64;i++) if(king(b[i])) {
-      const [r,c]=rc(i); score += side(b[i])*(0.025*(3.5-Math.abs(3.5-r)+3.5-Math.abs(3.5-c)));
+      score += side(b[i])*kingActivity[i];
     }
   }
   return score*100;
@@ -130,30 +141,30 @@ function evaluate(b,p) { return evalWhite(b)*p; }
 function moveKey(m){return m.from*64+m.to;}
 function orderMoves(ms, ttMove, ply) {
   const k1=killers[ply]?.[0], k2=killers[ply]?.[1];
-  ms.sort((a,b)=>{
-    function score(m) {
-      let s=m.captures.length*1200;
-      if(m.to===m.from) return s;
-      const target=m.board[m.to];
-      if(king(target))s+=80;
-      if(moveKey(m)===ttMove)s+=1000000;
-      if(moveKey(m)===k1)s+=50000;
-      if(moveKey(m)===k2)s+=30000;
-      s+=historyHeur[moveKey(m)]||0;
-      return s;
+  // Cache priorities once per move; stable sorting preserves tied move order.
+  for(const m of ms) {
+    let s=m.captures.length*1200;
+    if(m.to!==m.from) {
+      const key=moveKey(m);
+      if(king(m.board[m.to]))s+=80;
+      if(key===ttMove)s+=1000000;
+      if(key===k1)s+=50000;
+      if(key===k2)s+=30000;
+      s+=historyHeur[key]||0;
     }
-    return score(b)-score(a);
-  });
+    m.orderScore=s;
+  }
+  ms.sort((a,b)=>b.orderScore-a.orderScore);
   return ms;
 }
 function timeCheck(){ if((nodes&1023)===0 && performance.now()>=deadline) aborted=true; }
-function quiescence(b,p,alpha,beta,ply) {
+function quiescence(b,p,alpha,beta,ply,initialCaptures) {
   nodes++; timeCheck(); if(aborted)return 0;
   const stand=evaluate(b,p);
   if(stand>=beta)return beta;
   if(stand>alpha)alpha=stand;
   if(ply>=12)return alpha;
-  const caps=generateCaptures(b,p);
+  const caps=initialCaptures===undefined?generateCaptures(b,p):initialCaptures;
   if(!caps.length)return alpha;
   orderMoves(caps,0,ply);
   for(const m of caps) {
@@ -177,7 +188,7 @@ function search(b,p,depth,alpha,beta,ply) {
   }
   let ms=moves(b,p);
   if(!ms.length)return -MATE+ply;
-  if(depth<=0)return quiescence(b,p,alpha,beta,0);
+  if(depth<=0)return quiescence(b,p,alpha,beta,0,ms[0].captures.length?ms:[]);
   const ttMove=entry?entry.best:0;orderMoves(ms,ttMove,ply);
   let best=-INF,bestMove=0;
   for(const m of ms) {

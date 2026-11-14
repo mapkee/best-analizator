@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080e1b">
+<meta name="mobile-web-app-capable" content="yes">
+<script src="https://telegram.org/js/telegram-web-app.js?65"></script>
+<title>ANALYZATOR PRO</title>
+<style>
+:root{--bg:#080e1b;--panel:#111d30;--line:#243c5c;--blue:#38bdf8;--cyan:#67e8f9;--muted:#91a6c2;--text:#f4f8ff;--gold:#facc15}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;min-height:100dvh;padding:calc(25px + env(safe-area-inset-top)) 15px calc(40px + env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% -10%,#18345b 0%,#0b172a 42%,#060b14 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;display:flex;align-items:center;flex-direction:column}
+header{text-align:center;margin:0 0 23px}
+.logo{font-size:clamp(30px,5vw,43px);font-weight:950;letter-spacing:5px;margin:0;background:linear-gradient(100deg,#93c5fd,#22d3ee,#818cf8);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px #38bdf855)}
+.tagline{font-size:11px;letter-spacing:3px;color:#8ea9ca;margin-top:5px}
+.app{width:min(100%,940px);display:grid;grid-template-columns:minmax(0,540px) minmax(250px,1fr);gap:20px;align-items:start}
+.board-card{padding:10px;border:1px solid #315078;border-radius:17px;background:linear-gradient(145deg,#15253b,#0d192b);box-shadow:0 25px 70px #0009,0 0 30px #1d4ed822}
+.board-wrap{position:relative;width:100%;aspect-ratio:1;border-radius:9px;overflow:hidden;background:#27384e;box-shadow:inset 0 0 0 1px #ffffff18}
+.board{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);width:100%;height:100%;user-select:none}
+.cell{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0}
+.light{background:#dce5ed}
+.dark{background:linear-gradient(135deg,#506782,#354b66);cursor:pointer}
+.cell.selected{box-shadow:inset 0 0 0 4px #facc15}
+.cell.hint-from{box-shadow:inset 0 0 0 3px #22c55e}
+.cell.hint-to{box-shadow:inset 0 0 0 3px #38bdf8}
+.cell.legal:after{content:"";position:absolute;width:22%;height:22%;border-radius:50%;background:#67e8f9aa;box-shadow:0 0 12px #38bdf8;z-index:1}
+.piece{position:relative;width:78%;height:78%;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none;border:2px solid;box-shadow:0 5px 9px #0009,inset 0 2px 4px #ffffff55}
+.piece.white{background:radial-gradient(circle at 32% 25%,#fff 0%,#e2e8f0 43%,#9aaabd 100%);border-color:#f8fafc}
+.piece.black{background:radial-gradient(circle at 32% 25%,#53677f 0%,#182638 58%,#050a12 100%);border-color:#020617}
+.piece.king:after{content:"♛";font-size:clamp(17px,3vw,27px);font-weight:900;color:#facc15;text-shadow:0 1px 4px #000}
+.piece.white.king:after{color:#b77900}
+.overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;overflow:visible}
+.panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(160deg,#14243aee,#0c1728f2);padding:17px;box-shadow:0 18px 45px #0005;display:flex;flex-direction:column;gap:13px}
+.panel-title{font-size:12px;letter-spacing:2px;color:#9bb5d5;font-weight:800}
+.color-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.color-btn{padding:13px 8px;border-radius:11px;border:1px solid #345273;background:#14243a;color:#dcecff;font-size:13px;font-weight:750;cursor:pointer}
+.color-btn.active{border-color:#38bdf8;background:linear-gradient(140deg,#16416a,#12304f);box-shadow:0 0 0 1px #38bdf844,0 0 20px #38bdf822}
+.color-symbol{display:block;font-size:23px;margin-bottom:5px}
+.status{border:1px solid #244362;background:#091729;border-radius:11px;padding:12px;color:#c5eaff;font-size:13px;line-height:1.5;min-height:58px}
+.status strong{color:#67e8f9}
+.btn{border:1px solid #3b5d82;background:#172b46;color:#e7f2ff;border-radius:10px;padding:11px 13px;font-size:13px;font-weight:750;cursor:pointer;transition:.15s}
+.btn:hover{filter:brightness(1.2);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.primary{background:linear-gradient(120deg,#087bb9,#2454c6);border-color:#58c8fa;box-shadow:0 5px 18px #087bb944;color:white}
+.btn.primary:not(:disabled){animation:glow 2.8s infinite}
+#hintBtn{display:none}
+@keyframes glow{50%{box-shadow:0 5px 24px #0ea5e966}}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.info-row{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.info-row b{color:#e4efff;font-weight:700}
+.divider{height:1px;background:#263d5a;margin:1px 0}
+.tip{font-size:11px;line-height:1.55;color:#8198b6}
+.turn-pill{display:inline-flex;align-items:center;gap:7px;border:1px solid #2a4767;border-radius:99px;padding:7px 10px;color:#c9def8;font-size:11px;width:max-content}
+.turn-dot{width:8px;height:8px;border-radius:50%;background:#38bdf8;box-shadow:0 0 9px #38bdf8}
+.hidden{display:none!important}
+@media(max-width:760px){
+ body{padding:calc(12px + env(safe-area-inset-top)) 9px calc(22px + env(safe-area-inset-bottom));min-height:100dvh}
+ header{margin-bottom:13px}
+ .logo{font-size:clamp(27px,8vw,38px);letter-spacing:2px}
+ .tagline{font-size:9px;letter-spacing:2px}
+ .app{grid-template-columns:minmax(0,1fr);width:100%;max-width:540px;gap:10px}
+ .board-card{order:1;padding:6px;border-radius:13px}
+ .board-wrap{border-radius:7px}
+ .panel{order:2;padding:13px;border-radius:13px;gap:10px}
+ .color-btn{min-height:58px;font-size:14px}
+ .btn{min-height:44px}
+ .status{font-size:13px;min-height:48px}
+ .piece{width:82%;height:82%}
+}
+@media(max-width:380px){
+ body{padding-left:6px;padding-right:6px}
+ .panel{padding:10px}
+ .board-card{padding:4px}
+ .color-choices{gap:6px}
+ .color-btn{padding:10px 5px}
+}
+</style>
+</head>
+<body>
+<header><h1 class="logo">ANALYZATOR PRO</h1><div class="tagline">CHECKERS ENGINE · LIVE POSITION ANALYSIS</div></header>
+
+<section class="app">
+ <div class="board-card">
+  <div class="board-wrap">
+   <div class="board" id="board"></div>
+   <svg class="overlay" viewBox="0 0 800 800" preserveAspectRatio="none">
+    <defs>
+     <linearGradient id="arrowGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a5f3fc"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
+     <filter id="arrowGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+     <marker id="arrowHead" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Q3 5 0 0" fill="#67e8f9"/></marker>
+    </defs><g id="arrows"></g>
+   </svg>
+  </div>
+ </div>
+
+ <aside class="panel">
+  <div class="panel-title">ВЫБЕРИ СВОЮ СТОРОНУ</div>
+  <div class="color-choices">
+   <button class="color-btn active" id="whiteChoice"><span class="color-symbol">⚪</span>Белыми</button>
+   <button class="color-btn" id="blackChoice"><span class="color-symbol">⚫</span>Чёрными</button>
+  </div>
+  <div class="turn-pill"><span class="turn-dot"></span><span id="turnLabel">Ход белых</span></div>
+  <div class="status" id="status">Выбери цвет, затем переноси ходы партии на доску. Подсказки будут доступны только в твой ход.</div>
+  <button class="btn primary" id="hintBtn" disabled>✦　НАЙТИ ЛУЧШИЙ ХОД</button>
+  <div class="btn-row"><button class="btn" id="undoBtn">↶　Отменить</button><button class="btn" id="newBtn">⟳　Новая партия</button></div>
+  <div class="divider"></div>
+  <div class="panel-title">ПОЗИЦИЯ</div>
+  <div class="info-row"><span>Белые шашки</span><b id="whiteCount">12</b></div>
+  <div class="info-row"><span>Чёрные шашки</span><b id="blackCount">12</b></div>
+  <div class="info-row"><span>Твой цвет</span><b id="mySide">Белые</b></div>
+  <div class="info-row"><span>Очередь</span><b id="whoseTurn">Белые</b></div>
+  <div class="divider"></div>
+  <div class="tip">Автоматический анализ включается после каждого хода соперника.</div>
+ </aside>
+</section>
+
+<script>
+/* Telegram Mini App bootstrap: also works as a normal web page. */
+(function(){
+  const tg = window.Telegram && window.Telegram.WebApp;
+  if (!tg) return;
+  try {
+    tg.ready();
+    tg.expand();
+    if (tg.setHeaderColor) tg.setHeaderColor('#080e1b');
+    if (tg.setBackgroundColor) tg.setBackgroundColor('#080e1b');
+    if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+  } catch (e) {}
+})();
+"use strict";
+const $=id=>document.getElementById(id), dirs=[[-1,-1],[-1,1],[1,-1],[1,1]];
+const idx=(r,c)=>r*8+c, rc=i=>[i>>3,i&7], inside=(r,c)=>r>=0&&r<8&&c>=0&&c<8, sign=x=>Math.sign(x);
+let board,turn=1,myColor=1,selected=null,hint=null,history=[],thinking=false;
+let trans=new Map(),nodes=0,deadline=0,aborted=false;
+function startBoard(){let b=Array(64).fill(0);for(let r=0;r<3;r++)for(let c=0;c<8;c++)if((r+c)&1)b[idx(r,c)]=-1;for(let r=5;r<8;r++)for(let c=0;c<8;c++)if((r+c)&1)b[idx(r,c)]=1;return b}
+function isKing(p){return Math.abs(p)===2}
+function copy(b){return b.slice()}
+function count(b){let w=0,k=0;for(const p of b){if(p>0)w++;if(p<0)k++}return [w,k]}
+function promote(b){for(let c=0;c<8;c++){if(b[idx(0,c)]===1)b[idx(0,c)]=2;if(b[idx(7,c)]===-1)b[idx(7,c)]=-2}}
+function captureMoves(b,player){
+ const out=[];
+ for(let start=0;start<64;start++)if(sign(b[start])===player){
+  const initial=b[start];
+  function dfs(pos,cur,used,path,captured,piece){
+   const [r,c]=rc(pos);let extended=false;
+   for(const [dr,dc] of dirs){
+    if(!isKing(piece)){
+     const mr=r+dr,mc=c+dc,lr=r+2*dr,lc=c+2*dc;
+     if(!inside(mr,mc)||!inside(lr,lc))continue;
+     const victim=idx(mr,mc),land=idx(lr,lc);
+     if(sign(cur[victim])!==-player||used.has(victim)||cur[land]!==0)continue;
+     extended=true;const nb=copy(cur);nb[pos]=0;nb[victim]=0;let np=piece;let nr=lr;
+     if((player===1&&nr===0)||(player===-1&&nr===7))np=player*2;
+     nb[land]=np;const nu=new Set(used);nu.add(victim);
+     dfs(land,nb,nu,path.concat(land),captured.concat(victim),np);
+    }else{
+     let rr=r+dr,cc=c+dc;while(inside(rr,cc)&&cur[idx(rr,cc)]===0){rr+=dr;cc+=dc}
+     if(!inside(rr,cc))continue;const victim=idx(rr,cc);
+     if(sign(cur[victim])!==-player||used.has(victim))continue;
+     rr+=dr;cc+=dc;
+     while(inside(rr,cc)&&cur[idx(rr,cc)]===0){
+      extended=true;const land=idx(rr,cc),nb=copy(cur);nb[pos]=0;nb[victim]=0;nb[land]=piece;
+      const nu=new Set(used);nu.add(victim);dfs(land,nb,nu,path.concat(land),captured.concat(victim),piece);
+      rr+=dr;cc+=dc;
+     }
+    }
+   }
+   if(!extended&&captured.length){const final=copy(cur);out.push({from:start,to:pos,path:path.slice(),captures:captured.slice(),board:final})}
+  }
+  dfs(start,copy(b),new Set(),[],[],initial);
+ }
+ return out;
+}
+function simpleMoves(b,player){
+ const out=[];
+ for(let i=0;i<64;i++)if(sign(b[i])===player){
+  const [r,c]=rc(i),p=b[i];
+  if(isKing(p)){
+   for(const [dr,dc] of dirs){let rr=r+dr,cc=c+dc;while(inside(rr,cc)&&b[idx(rr,cc)]===0){const to=idx(rr,cc),nb=copy(b);nb[to]=p;nb[i]=0;out.push({from:i,to,path:[to],captures:[],board:nb});rr+=dr;cc+=dc}}
+  }else{
+   const dr=player===1?-1:1;
+   for(const dc of [-1,1]){const rr=r+dr,cc=c+dc;if(inside(rr,cc)&&b[idx(rr,cc)]===0){const to=idx(rr,cc),nb=copy(b);nb[to]=p;nb[i]=0;if((player===1&&rr===0)||(player===-1&&rr===7))nb[to]=player*2;out.push({from:i,to,path:[to],captures:[],board:nb})}}
+  }
+ }
+ return out;
+}
+function moves(b,p){const caps=captureMoves(b,p);return caps.length?caps:simpleMoves(b,p)}
+function evalPos(b,player){
+ let score=0,wMob=0,bMob=0;
+ for(let i=0;i<64;i++){
+  const p=b[i];if(!p)continue;const [r,c]=rc(i),sg=sign(p),king=isKing(p);
+  let v=king?3.35:1.0;
+  if(!king){v+=(sg===1?(7-r):r)*.025;if(c>=2&&c<=5)v+=.035;if(r>=2&&r<=5)v+=.025}
+  else{if(r>=2&&r<=5&&c>=2&&c<=5)v+=.08}
+  score+=sg*v;
+ }
+ // Small mobility term, with a bounded cost to avoid excessive evaluator recursion.
+ const mobility=b=>{let n=0;for(let i=0;i<64;i++)if(b[i])n++;return n};
+ // Material and positional terms dominate; exact mobility is evaluated at leaves by move count.
+ const my=moves(b,player).length,opp=moves(b,-player).length;
+ score+=player*(my-opp)*.018;
+ return score*player;
+}
+function hash(b,p){let s=p===1?"W":"B";for(let i=0;i<64;i++)s+=b[i]+",";return s}
+function ordered(ms,ttMove){
+ return ms.sort((a,b)=>{
+  const va=(a===ttMove?10000:0)+a.captures.length*100+(isKing(a.board[a.to])?8:0);
+  const vb=(b===ttMove?10000:0)+b.captures.length*100+(isKing(b.board[b.to])?8:0);return vb-va
+ })
+}
+function negamax(b,p,depth,alpha,beta,ply){
+ nodes++;if((nodes&1023)===0&&performance.now()>deadline){aborted=true;return 0}
+ const key=hash(b,p),entry=trans.get(key),orig=alpha;
+ if(entry&&entry.depth>=depth){if(entry.flag===0)return entry.score;if(entry.flag===1)alpha=Math.max(alpha,entry.score);else beta=Math.min(beta,entry.score);if(alpha>=beta)return entry.score}
+ const ms=moves(b,p);
+ if(!ms.length)return -10000+ply;
+ if(depth<=0)return evalPos(b,p);
+ let best=-Infinity,bestMove=null;
+ ordered(ms,entry?.move);
+ for(const m of ms){const v=-negamax(m.board,-p,depth-1,-beta,-alpha,ply+1);if(aborted)return 0;if(v>best){best=v;bestMove=m}if(v>alpha)alpha=v;if(alpha>=beta)break}
+ let flag=0;if(best<=orig)flag=2;else if(best>=beta)flag=1;
+ if(trans.size>80000)trans.clear();
+ trans.set(key,{depth,score:best,flag,move:bestMove});
+ return best;
+}
+function engine(b,p,budgetMs=2200){
+ const root=moves(b,p);if(!root.length)return null;
+ if(root.length===1)return root[0];
+ const start=performance.now();deadline=start+budgetMs;nodes=0;aborted=false;trans.clear();
+ let chosen=root[0],completed=0;
+ for(let depth=1;depth<=10;depth++){
+  let alpha=-Infinity,beta=Infinity,best=-Infinity,bestMove=chosen;
+  ordered(root,chosen);
+  for(const m of root){
+   const val=-negamax(m.board,-p,depth-1,-beta,-alpha,1);
+   if(aborted)break;
+   if(val>best){best=val;bestMove=m}if(val>alpha)alpha=val;
+  }
+  if(aborted)break;chosen=bestMove;completed=depth;
+  if(Math.abs(best)>9000)break;
+ }
+ chosen.depth=completed;chosen.nodes=nodes;chosen.score=bestScoreEstimate(b,p,chosen);
+ return chosen;
+}
+function bestScoreEstimate(b,p,m){return m.captures.length}
+function save(){history.push({board:copy(board),turn});if(history.length>100)history.shift()}
+function coord(i){const [r,c]=rc(i);return "abcdefgh"[c]+(8-r)}
+function render(){
+ const root=$("board");root.innerHTML="";
+ for(let sr=0;sr<8;sr++)for(let sc=0;sc<8;sc++){
+  const r=myColor===1?sr:7-sr,c=myColor===1?sc:7-sc,i=idx(r,c),cell=document.createElement("div");
+  cell.className="cell "+(((r+c)&1)?"dark":"light");
+  if(selected===i)cell.classList.add("selected");
+  if(hint){if(hint.from===i)cell.classList.add("hint-from");if(hint.path.includes(i))cell.classList.add("hint-to")}
+  if(selected!==null&&moves(board,turn).some(m=>m.from===selected&&m.to===i))cell.classList.add("legal");
+  if(board[i]){const pc=document.createElement("div");pc.className="piece "+(board[i]>0?"white":"black")+(isKing(board[i])?" king":"");cell.appendChild(pc)}
+  cell.addEventListener("click",()=>clickCell(i));root.appendChild(cell);
+ }
+ drawArrow();updatePanel();
+}
+function drawArrow(){
+ const g=$("arrows");g.innerHTML="";if(!hint)return;
+ const points=[hint.from,...hint.path].map(i=>{let [r,c]=rc(i);if(myColor===-1){r=7-r;c=7-c}return [(c+.5)*100,(r+.5)*100]});
+ if(points.length<2)return;
+ const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+ let d=`M ${points[0][0]} ${points[0][1]}`;
+ for(let j=1;j<points.length;j++){const a=points[j-1],b=points[j],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;d+=` Q ${a[0]} ${a[1]} ${mx} ${my}`;if(j===points.length-1)d+=` T ${b[0]} ${b[1]}`}
+ path.setAttribute("d",d);path.setAttribute("fill","none");path.setAttribute("stroke","url(#arrowGrad)");path.setAttribute("stroke-width","9");path.setAttribute("stroke-linecap","round");path.setAttribute("stroke-linejoin","round");path.setAttribute("marker-end","url(#arrowHead)");path.setAttribute("filter","url(#arrowGlow)");g.appendChild(path);
+ const start=document.createElementNS("http://www.w3.org/2000/svg","circle");start.setAttribute("cx",points[0][0]);start.setAttribute("cy",points[0][1]);start.setAttribute("r","13");start.setAttribute("fill","#22c55e");start.setAttribute("stroke","#dcfce7");start.setAttribute("stroke-width","4");g.appendChild(start);
+}
+function updatePanel(){
+ const [w,b]=count(board);$("whiteCount").textContent=w;$("blackCount").textContent=b;
+ $("mySide").textContent=myColor===1?"Белые":"Чёрные";$("whoseTurn").textContent=turn===1?"Белые":"Чёрные";
+ $("turnLabel").textContent=turn===myColor?"ТВОЙ ХОД":"ХОД СОПЕРНИКА";
+ $("hintBtn").disabled=thinking||turn!==myColor;
+ $("whiteChoice").classList.toggle("active",myColor===1);$("blackChoice").classList.toggle("active",myColor===-1);
+}
+function status(s){$("status").textContent=s}
+function clickCell(i){
+ if(thinking)return;
+ if((rc(i)[0]+rc(i)[1])%2===0)return;
+ if(selected!==null){
+  const candidate=moves(board,turn).find(m=>m.from===selected&&m.to===i);
+  if(candidate){save();board=candidate.board;turn=-turn;selected=null;hint=null;render();if(turn===myColor){status("Ход соперника принят. Ищу лучший ответ…");autoHint()}else{status("Ход записан. Ожидаю ход соперника.");}return}
+ }
+ if(sign(board[i])===turn){selected=i;hint=null;render();status("Шашка выбрана. Нажми на подсвеченную клетку назначения.");}
+ else{selected=null;render()}
+}
+function setColor(c){
+ if(thinking)return;myColor=c;selected=null;hint=null;render();
+ if(turn===myColor){status("Твой ход. Анализирую позицию…");autoHint()}
+ else status("Сейчас ход соперника. После его хода подсказка появится автоматически.");
+}
+function getHint(){
+ if(turn!==myColor||thinking)return;
+ thinking=true;hint=null;selected=null;updatePanel();status("Движок анализирует позицию и перебирает варианты…");
+ setTimeout(()=>{
+  const m=engine(board,turn,3000);thinking=false;
+  if(!m){render();status("У тебя нет допустимых ходов. Похоже, партия окончена.");return}
+  hint=m;render();
+  const route=[m.from,...m.path].map(coord).join(" → ");
+  status(`Лучший найденный вариант: ${route}. Глубина поиска: ${m.depth} полуходов. Выполни этот ход на доске.`);
+ },40);
+}
+function autoHint(){
+ if(turn!==myColor||thinking)return;
+ // Let the board update first, then start analysis automatically.
+ setTimeout(()=>{if(turn===myColor&&!thinking)getHint()},120);
+}
+$("whiteChoice").onclick=()=>setColor(1);$("blackChoice").onclick=()=>setColor(-1);
+$("hintBtn").onclick=getHint;
+$("undoBtn").onclick=()=>{if(thinking)return;if(!history.length){status("Пока нечего отменять.");return}const s=history.pop();board=s.board;turn=s.turn;hint=null;selected=null;render();status(turn===myColor?"Твой ход.":"Ход соперника.")};
+$("newBtn").onclick=()=>{if(thinking)return;board=startBoard();turn=1;history=[];hint=null;selected=null;render();if(turn===myColor){status("Твой ход. Анализирую позицию…");autoHint()}else status("Новая партия. Ожидаю ход соперника.")};
+board=startBoard();render();status("Выбери свой цвет. Анализ твоего хода будет запускаться автоматически.");
+</script>
+</body>
+</html>

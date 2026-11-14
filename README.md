@@ -1,0 +1,101 @@
+<div align="center">
+
+# На шаг впереди
+
+### Сначала рассчитай. Потом ходи.
+
+Анализатор позиций для русских шашек — в браузере и внутри Telegram.
+
+**[Telegram · @shashkamovebot](https://t.me/shashkamovebot)** &nbsp; · &nbsp; **[Открыть веб-версию](https://mapkee.github.io/one-step-ahead/)**
+
+![JavaScript](https://img.shields.io/badge/JavaScript-ES2020-F7DF1E?style=flat-square&logo=javascript&logoColor=101828)
+![Telegram Mini App](https://img.shields.io/badge/Telegram-Mini_App-26A5E4?style=flat-square&logo=telegram&logoColor=white)
+![Web Worker](https://img.shields.io/badge/Поиск-Web_Worker-3B82F6?style=flat-square)
+![GitHub Pages](https://img.shields.io/badge/Hosting-GitHub_Pages-182638?style=flat-square&logo=github)
+
+</div>
+
+![Интерфейс «На шаг впереди»: шашечная доска, синяя стрелка подсказки и панель анализа](docs/screenshot.jpg)
+
+## Думай на ход дальше
+
+Выбери свой цвет, переноси ходы соперника на доску и получай подсказки.
+Полупрозрачная синяя стрелка показывает маршрут, а панель — завершённую
+глубину поиска и число просмотренных узлов. Подсказка уточняется по мере анализа.
+
+| Возможность | Как это работает |
+| :--- | :--- |
+| Два режима поиска | Быстрый — около 1 секунды; глубокий — около 4,5 секунды |
+| Подсказки по ходу анализа | Результат появляется после завершения очередной глубины |
+| Наглядный маршрут | Стрелка и отметки промежуточных клеток для серии взятий |
+| Удобная доска | Выбор цвета, разворот доски, отмена хода и новая партия |
+| Отзывчивый интерфейс | Поиск выполняется в отдельном Web Worker |
+| Мобильный формат | Адаптивная вёрстка и подключённый Telegram WebApp SDK |
+
+Быстрый режим может проверить меньше вариантов и уступать глубокому по качеству.
+Ранние подсказки могут измениться после завершения следующих глубин поиска.
+
+## Начать
+
+1. Открой [веб-версию](https://mapkee.github.io/one-step-ahead/) или [бота в Telegram](https://t.me/shashkamovebot).
+2. Выбери, за какой цвет играешь.
+3. Записывай ходы на доске. После хода соперника анализ запустится автоматически.
+4. Выбери подсвеченную шашку и клетку назначения, чтобы записать свой ход.
+
+## Telegram Mini App
+
+Бот: **[@shashkamovebot](https://t.me/shashkamovebot)**.
+
+Адрес приложения для настройки в BotFather:
+
+```text
+https://mapkee.github.io/one-step-ahead/
+```
+
+Для кнопки запуска в профиле владелец бота настраивает Main Mini App через
+[@BotFather](https://t.me/BotFather): `/mybots` → `@shashkamovebot` →
+**Bot Settings → Configure Mini App → Enable Mini App** и указывает адрес выше.
+После включения основного Mini App приложение можно открывать внутри Telegram
+через `https://t.me/shashkamovebot?startapp`.
+
+Подробнее: [официальная документация Telegram](https://core.telegram.org/bots/webapps#launching-the-main-mini-app).
+
+## Под капотом
+
+Чистые HTML, CSS и JavaScript. Сборка и отдельный сервер для анализа не нужны:
+движок работает на устройстве пользователя.
+
+Поиск использует итеративное углубление, negamax с alpha-beta отсечениями,
+таблицу транспозиций, упорядочивание ходов и поиск взятий на границе глубины.
+
+```text
+index.html          Интерфейс и интеграция с Telegram
+engine-worker.js    Поисковый движок
+docs/screenshot.jpg Скриншот приложения
+tests/              Проверки движка и интерфейса
+```
+
+Для локального запуска размести файлы на HTTP-сервере с поддержкой статических
+файлов. Открытие через `file://` может блокировать загрузку Web Worker.
+
+## Проверки
+
+Нужны Node.js и Git. Из корня репозитория:
+
+```sh
+node tests/engine.cjs
+node tests/ui.cjs
+```
+
+Проверяются совпадение генерации ходов с исходным движком, результаты поиска
+при фиксированной глубине, частичные ответы, переключение режимов и отмена
+устаревшего анализа. Подробности — в [описании проверок](tests/README.md).
+
+---
+
+<div align="center">
+
+**На шаг впереди · One Step Ahead**  
+[Telegram](https://t.me/shashkamovebot) · [Веб-версия](https://mapkee.github.io/one-step-ahead/)
+
+</div>

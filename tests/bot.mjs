@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {handleRequest,handleUpdate,keyboard,HELP_TEXT} from '../bot/worker.mjs';
+import worker,{handleRequest,handleUpdate,keyboard,HELP_TEXT} from '../bot/worker.mjs';
 const env={BOT_TOKEN:'test-only-token',WEBHOOK_SECRET:'test-only-secret-abcdefghijklmnopqrstuvwxyz'};
 const calls=[];
 let existingWebhook='',botUsername='shashkamovebot';
@@ -58,4 +58,19 @@ for(const [code,description,expected] of [[401,'Unauthorized','BOT_TOKEN'],[400,
 }
 const laterFailure=await handleRequest(setup(env.WEBHOOK_SECRET),env,async(url,options)=>url.endsWith('/setWebhook')?Response.json({ok:false,error_code:400,description:'Bad webhook: Failed to resolve host'},{status:400}):mockFetch(url,options));
 assert.match(await laterFailure.text(),/setWebhook:.*Failed to resolve host/);
+// Exercise the actual Workers entry point, including its third runtime argument.
+const originalFetch=globalThis.fetch;
+globalThis.fetch=mockFetch;
+try{
+  calls.length=0;
+  const executionContext={waitUntil(){},passThroughOnException(){}};
+  const configured=await worker.fetch(setup(env.WEBHOOK_SECRET),env,executionContext);
+  assert.equal(configured.status,200);
+  assert.match(await configured.text(),/Бот подключён/);
+  assert.ok(calls.some(call=>call.method==='getMe'));
+  assert.ok(calls.some(call=>call.method==='setWebhook'));
+  calls.length=0;
+  assert.equal((await worker.fetch(webhook(start),env,executionContext)).status,200);
+  assert.equal(calls[0].method,'sendMessage');
+}finally{globalThis.fetch=originalFetch;}
 console.log('Bot tests passed. No real Telegram messages sent.');

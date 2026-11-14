@@ -86,4 +86,8 @@ export async function handleRequest(request,env,fetcher=fetch) {
   if(!update||typeof update!=='object')return new Response('Bad update',{status:400});
   try{await handleUpdate(update,env,fetcher);return new Response('OK')}catch{return new Response('Telegram request failed',{status:502})}
 }
-export default {fetch:handleRequest};
+// Cloudflare passes ExecutionContext as the third argument, not a fetch function.
+// Keep the injectable fetcher inside handleRequest for tests only.
+export default {
+  fetch(request,env){return handleRequest(request,env);}
+};

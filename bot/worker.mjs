@@ -8,17 +8,31 @@ export function keyboard() {
     [{text:'Написать разработчику',url:DEVELOPER_URL}]
   ]};
 }
+class TelegramError extends Error {
+  constructor(method,detail){super(`${method}: ${detail}`);}
+}
+const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function safeDetail(value,env){
+  let text=String(value);
+  for(const secret of [env.BOT_TOKEN,env.BOT_TOKEN?.trim(),env.WEBHOOK_SECRET])if(secret)text=text.split(secret).join('[скрыто]');
+  return text.replace(/\d+:[A-Za-z0-9_-]+/g,'[скрыто]').slice(0,300);
+}
 async function api(env,method,payload,fetcher=fetch) {
   // Do not log request URLs or exceptions: the URL contains the bot token.
   let response;
   try {
-    response=await fetcher(`https://api.telegram.org/bot${env.BOT_TOKEN}/${method}`,{
+    response=await fetcher(`https://api.telegram.org/bot${env.BOT_TOKEN.trim()}/${method}`,{
       method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)
     });
-    const result=await response.json();
-    if(!response.ok||!result.ok)throw new Error();
+  } catch {throw new TelegramError(method,'Не удалось соединиться с Telegram.');}
+  let result;
+  try {result=await response.json()}catch{throw new TelegramError(method,`HTTP ${response.status}: ответ Telegram не в формате JSON.`)}
+  if(!response.ok||!result?.ok){
+    const code=result?.error_code||response.status;
+    const hint=code===401?'Токен отклонён: проверь BOT_TOKEN в Production.':code===404?'Проверь формат BOT_TOKEN: нужен только токен из BotFather, без ссылки и префикса bot.':safeDetail(result?.description||'Запрос отклонён.',env);
+    throw new TelegramError(method,`HTTP ${response.status}, код ${code}. ${hint}`);
+  }
     return result.result;
-  } catch {throw new Error(`Telegram ${method} failed`);}
 }
 export async function handleUpdate(update,env,fetcher=fetch) {
   const call=(method,payload)=>api(env,method,payload,fetcher);
@@ -45,7 +59,7 @@ const page=(body,status=200)=>new Response(`<!doctype html><html lang="ru"><meta
 export async function handleRequest(request,env,fetcher=fetch) {
   const url=new URL(request.url);
   if(request.method==='GET'&&url.pathname==='/')return new Response('One Step Ahead bot worker',{headers:{'content-type':'text/plain; charset=utf-8'}});
-  if(url.pathname==='/setup'&&request.method==='GET')return page('<h1>Подключение @shashkamovebot</h1><p>Введи WEBHOOK_SECRET из секретов Worker. Токен бота сюда вводить не нужно.</p><form method="post"><label>Код настройки<input type="password" name="secret" required autocomplete="off"></label><button>Подключить бота</button></form>');
+  if(url.pathname==='/setup'&&request.method==='GET')return page('<h1>Подключение @shashkamovebot</h1><p>Введи WEBHOOK_SECRET из секретов Worker. Токен бота сюда вводить не нужно.</p><form method="post"><label>Код настройки<input type="password" name="secret" required autocomplete="off"></label><button>Подключить бота</button></form><small>Диагностика · версия 2</small>');
   if(!env.BOT_TOKEN||!env.WEBHOOK_SECRET||!/^[A-Za-z0-9_-]{32,256}$/.test(env.WEBHOOK_SECRET))return new Response('Worker secrets are not configured',{status:503});
   if(url.pathname==='/setup'&&request.method==='POST'){
     let form;try{form=await request.formData()}catch{return new Response('Bad request',{status:400})}
@@ -60,7 +74,10 @@ export async function handleRequest(request,env,fetcher=fetch) {
       await api(env,'setChatMenuButton',{menu_button:{type:'web_app',text:'Анализатор',web_app:{url:APP_URL}}},fetcher);
       await api(env,'setWebhook',{url:target,secret_token:env.WEBHOOK_SECRET,allowed_updates:['message','callback_query']},fetcher);
       return page('<h1>Бот подключён</h1><p>Открой @shashkamovebot и отправь /start. В ответ появятся три кнопки.</p>');
-    }catch{return page('<p>Telegram не подтвердил настройку. Проверь секрет BOT_TOKEN и повтори попытку.</p>',502)}
+    }catch(error){
+      const detail=error instanceof TelegramError?error.message:'Не удалось завершить настройку.';
+      return page(`<h1>Настройка остановлена</h1><p>${escapeHtml(detail)}</p><p>Можно прислать текст этой ошибки разработчику. Токен и секрет в ответе скрыты.</p><a href="/setup">Повторить настройку</a>`,502);
+    }
   }
   if(url.pathname!=='/webhook')return new Response('Not found',{status:404});
   if(request.method!=='POST')return new Response('Method not allowed',{status:405,headers:{allow:'POST'}});

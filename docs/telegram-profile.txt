@@ -40,6 +40,7 @@ docs/bot-avatar.png
 Открыть приложение — web_app с адресом приложения.
 Как пользоваться — инструкция в сообщении бота.
 Написать разработчику — https://t.me/mapkee
+GitHub — https://github.com/mapkee/one-step-ahead
 
 Важно: приветствие и ответы на дополнительные кнопки требуют обработчика
 сообщений бота. Обработчик подготовлен в bot/worker.mjs для Cloudflare Workers.

@@ -5,7 +5,8 @@ export function keyboard() {
   return {inline_keyboard:[
     [{text:'Открыть приложение',web_app:{url:APP_URL}}],
     [{text:'Как пользоваться',callback_data:'help'}],
-    [{text:'Написать разработчику',url:DEVELOPER_URL}]
+    [{text:'Написать разработчику',url:DEVELOPER_URL}],
+    [{text:'GitHub',url:'https://github.com/mapkee/one-step-ahead'}]
   ]};
 }
 class TelegramError extends Error {
@@ -73,7 +74,7 @@ export async function handleRequest(request,env,fetcher=fetch) {
       await api(env,'setMyCommands',{commands:[{command:'start',description:'Открыть меню'},{command:'help',description:'Как пользоваться'}]},fetcher);
       await api(env,'setChatMenuButton',{menu_button:{type:'web_app',text:'Анализатор',web_app:{url:APP_URL}}},fetcher);
       await api(env,'setWebhook',{url:target,secret_token:env.WEBHOOK_SECRET,allowed_updates:['message','callback_query']},fetcher);
-      return page('<h1>Бот подключён</h1><p>Открой @shashkamovebot и отправь /start. В ответ появятся три кнопки.</p>');
+      return page('<h1>Бот подключён</h1><p>Открой @shashkamovebot и отправь /start. В ответ появятся четыре кнопки.</p>');
     }catch(error){
       const detail=error instanceof TelegramError?error.message:'Не удалось завершить настройку.';
       return page(`<h1>Настройка остановлена</h1><p>${escapeHtml(detail)}</p><p>Можно прислать текст этой ошибки разработчику. Токен и секрет в ответе скрыты.</p><a href="/setup">Повторить настройку</a>`,502);

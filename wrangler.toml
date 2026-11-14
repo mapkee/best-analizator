@@ -1,0 +1,7 @@
+name = "shashkamovebot"
+main = "bot/worker.mjs"
+compatibility_date = "2026-11-15"
+workers_dev = true
+
+# BOT_TOKEN and WEBHOOK_SECRET must be added as Cloudflare secrets.
+# This worker only handles Telegram messages. The website stays on GitHub Pages.

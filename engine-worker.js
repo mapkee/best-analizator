@@ -168,7 +168,7 @@ function orderMoves(ms, ttMove, ply) {
   ms.sort((a,b)=>b.orderScore-a.orderScore);
   return ms;
 }
-function timeCheck(){ if((nodes&1023)===0 && performance.now()>=deadline) aborted=true; }
+function timeCheck(){ if((nodes&255)===0 && performance.now()>=deadline) aborted=true; }
 function quiescence(b,p,alpha,beta,ply,initialCaptures) {
   nodes++; timeCheck(); if(aborted)return 0;
   const stand=evaluate(b,p);

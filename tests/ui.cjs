@@ -17,12 +17,16 @@ class Worker {
 }
 const document={getElementById(id){if(!elements.has(id))elements.set(id,new Element());return elements.get(id);},createElement(){return new Element();},createElementNS(){return new Element();}};
 const html=fs.readFileSync('index.html','utf8');
+assert.ok(!html.includes('ANALYZATOR PRO'));
+assert.ok(!/[⚪⚫✦↶⟳]/u.test(html));
+assert.match(html,/<marker[^>]*id="ah"[^>]*>[\s\S]*?stroke="#93c5fd"/);
 const script=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].at(-1)[1];
 const context=vm.createContext({document,window:{},Worker,setTimeout(){}});
 vm.runInContext(script,context);
 const run=code=>vm.runInContext(code,context);
 run('analyze()');
 const worker=workers.at(-1),id=worker.message.requestId;
+assert.equal(worker.message.budgetMs,1000);
 worker.onmessage({data:{requestId:id,partial:true,move:{from:40,to:33,path:[33],captures:[],depth:1,nodes:20}}});
 assert.equal(run('thinking'),true);
 assert.match(elements.get('status').textContent,/уточняю/);
@@ -39,6 +43,14 @@ for(const color of [1,-1]){
   run(`myColor=${color};hint={from:40,path:[26,12],captures:[33,19]};drawArrow()`);
   for(const el of elements.get('arrows').children)for(const value of Object.values(el.attributes))assert.ok(!value.includes('NaN'));
 }
+run('turn=1;myColor=1;setAnalysisMode(4500)');
+const deepWorker=workers.at(-1);
+assert.equal(deepWorker.message.budgetMs,4500);
+assert.equal(elements.get('deepMode').attributes['aria-pressed'],'true');
+run('setAnalysisMode(1000)');
+assert.equal(deepWorker.terminated,true);
+assert.equal(workers.at(-1).message.budgetMs,1000);
+assert.equal(elements.get('fastMode').attributes['aria-pressed'],'true');
 // Exercise the real worker protocol: completed iterations arrive before final.
 const reports=[],engine=vm.createContext({performance,self:{postMessage(data){reports.push({data,time:performance.now()});}}});
 vm.runInContext(fs.readFileSync('engine-worker.js','utf8'),engine);

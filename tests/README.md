@@ -22,8 +22,10 @@ and valid SVG route geometry in both board orientations. This uses a minimal
 DOM harness, not a browser rendering test. The worker also runs a real 500 ms
 search and reports first-hint latency and final response time.
 
-The UI displays each completed search iteration while retaining the original
-4.5-second analysis budget. Early hints are provisional; their move can change
+The UI displays each completed search iteration. The default fast mode uses a
+1-second search budget; deep mode retains the original 4.5-second budget. The
+shorter budget can reduce completed depth and move quality; choose deep mode
+when analysis quality matters more than latency. Early hints are provisional; their move can change
 as deeper iterations finish. Selecting a piece, undoing, starting a game or
 changing sides terminates the old worker so obsolete analysis cannot overwrite
 the current board's hint.

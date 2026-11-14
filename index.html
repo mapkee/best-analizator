@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080e1b"><meta name="mobile-web-app-capable" content="yes">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<title>ANALYZATOR PRO — Russian Draughts</title>
+<title>ANALYZATOR — Russian Draughts</title>
 <style>
 :root{color-scheme:dark;--bg:#070d18;--panel:#101d30;--line:#294463;--blue:#38bdf8;--cyan:#67e8f9;--txt:#eff7ff;--muted:#91a6c2}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;min-height:100dvh;padding:calc(14px + env(safe-area-inset-top)) 12px calc(22px + env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% -10%,#17365d,#091426 48%,#050a12);color:var(--txt);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;display:flex;align-items:center;flex-direction:column}
@@ -12,28 +12,32 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(27px,5vw,42px);fo
 .app{width:min(100%,960px);display:grid;grid-template-columns:minmax(0,560px) minmax(250px,1fr);gap:16px;align-items:start}.board-card,.panel{border:1px solid #315078;border-radius:16px;background:linear-gradient(145deg,#14243a,#0b1728);box-shadow:0 22px 65px #0008}.board-card{padding:9px}.board-wrap{position:relative;width:100%;aspect-ratio:1;border-radius:9px;overflow:hidden;background:#27384e}.board{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);width:100%;height:100%;user-select:none}.cell{display:flex;align-items:center;justify-content:center;position:relative}.light{background:#dce5ed}.dark{background:linear-gradient(135deg,#506782,#354b66);cursor:pointer}.cell.selected{box-shadow:inset 0 0 0 4px #facc15}.cell.from{box-shadow:inset 0 0 0 3px #22c55e}.cell.to{box-shadow:inset 0 0 0 3px #38bdf8}.cell.legal:after{content:"";width:22%;height:22%;border-radius:50%;background:#67e8f9bb;box-shadow:0 0 12px #38bdf8;position:absolute}.piece{width:79%;height:79%;border-radius:50%;z-index:2;pointer-events:none;border:2px solid;box-shadow:0 5px 9px #0009,inset 0 2px 4px #ffffff55;display:flex;align-items:center;justify-content:center}.white{background:radial-gradient(circle at 32% 25%,#fff,#dbe4ef 48%,#91a2b8);border-color:#fff}.black{background:radial-gradient(circle at 32% 25%,#566b84,#182638 58%,#050a12);border-color:#020617}.king:after{content:"♛";font-size:clamp(16px,3vw,27px);color:#d69b00;text-shadow:0 1px 4px #000}.overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}.panel{padding:16px;display:flex;flex-direction:column;gap:11px}.pt{font-size:11px;letter-spacing:1.8px;color:#9bb5d5;font-weight:850}.choices,.btnrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choice,.btn{border:1px solid #345273;background:#14243a;color:#e6f2ff;border-radius:10px;padding:11px 8px;font-weight:750;cursor:pointer}.choice.active{border-color:#38bdf8;background:#16416a;box-shadow:0 0 0 1px #38bdf844}.status{border:1px solid #244362;background:#091729;border-radius:10px;padding:11px;color:#c5eaff;font-size:13px;line-height:1.5;min-height:58px}.btn.primary{background:linear-gradient(120deg,#087bb9,#2454c6);border-color:#58c8fa;color:white}.btn:disabled{opacity:.45;cursor:not-allowed}.stats{display:grid;grid-template-columns:1fr auto;gap:7px;font-size:12px;color:var(--muted)}.stats b{color:#e4efff}.tip{font-size:11px;line-height:1.5;color:#8198b6}.turn{font-size:12px;color:#c9def8;border:1px solid #2a4767;border-radius:99px;padding:7px 10px;width:max-content}.hidden{display:none!important}
 @media(max-width:760px){body{padding:calc(8px + env(safe-area-inset-top)) 7px calc(16px + env(safe-area-inset-bottom))}.app{grid-template-columns:minmax(0,1fr);max-width:560px;gap:9px}.board-card{padding:5px;border-radius:12px}.panel{padding:12px;border-radius:12px;gap:9px}.choice,.btn{min-height:43px}.logo{letter-spacing:2px}.tag{font-size:9px}}@media(max-width:380px){.panel{padding:9px}.board-card{padding:4px}}
 
-/* Warm, restrained move guidance; pieces remain visible under the route. */
+/* Blue move guidance; pieces remain visible under the route. */
 .cell.selected,.cell.from,.cell.to{box-shadow:none}
-.cell.selected{background:linear-gradient(135deg,#8b7854,#66583f)}
-.cell.from{background:linear-gradient(135deg,#7c7660,#565c53)}
-.cell.to{background:linear-gradient(135deg,#9c8658,#6a654e)}
-.cell.from .piece{box-shadow:0 5px 9px #0009,0 0 0 3px #f4d58c,0 0 0 7px #f4d58c22,inset 0 2px 4px #ffffff55}
-.cell.to:before{content:"";position:absolute;inset:17%;border:2px solid #ffe2a5aa;border-radius:50%;background:#ffe2a512}
-.cell.legal:after{width:17%;height:17%;background:#ffe2a5c9;box-shadow:0 0 0 5px #ffe2a51a}
-.status.analyzing{border-color:#ac8c48;background:linear-gradient(120deg,#26271f,#101d2a)}
-.status.analyzing:before{content:"";display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;background:#f4d58c;animation:breathe 1.5s ease-in-out infinite}
+.cell.selected{background:linear-gradient(135deg,#3c6b9b,#264e79)}
+.cell.from{background:linear-gradient(135deg,#426d99,#2d537c)}
+.cell.to{background:linear-gradient(135deg,#497fb6,#305e8e)}
+.cell.from .piece{box-shadow:0 5px 9px #0009,0 0 0 3px #60a5fa,0 0 0 7px #60a5fa22,inset 0 2px 4px #ffffff55}
+.cell.to:before{content:"";position:absolute;inset:17%;border:2px solid #60a5faaa;border-radius:50%;background:#60a5fa12}
+.cell.legal:after{width:17%;height:17%;background:#60a5fac9;box-shadow:0 0 0 5px #60a5fa1a}
+.status.analyzing{border-color:#3b82f6;background:linear-gradient(120deg,#172f50,#101d2a)}
+.status.analyzing:before{content:"";display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;background:#60a5fa;animation:breathe 1.5s ease-in-out infinite}
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
+.choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
 </style></head>
 <body>
-<header><h1 class="logo">ANALYZATOR PRO</h1><div class="tag">RUSSIAN DRAUGHTS · DEEP SEARCH ENGINE</div></header>
+<header><h1 class="logo">ANALYZATOR</h1><div class="tag">RUSSIAN DRAUGHTS · DEEP SEARCH ENGINE</div></header>
 <section class="app">
- <div class="board-card"><div class="board-wrap"><div class="board" id="board"></div><svg class="overlay" viewBox="0 0 800 800" preserveAspectRatio="none"><defs><linearGradient id="ag" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#e8bd68"/><stop offset="1" stop-color="#fff0c5"/></linearGradient><marker id="ah" markerUnits="userSpaceOnUse" markerWidth="26" markerHeight="26" refX="19" refY="13" orient="auto"><path d="M6 4 L19 13 L6 22" fill="none" stroke="#fff0c5" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><g id="arrows"></g></svg></div></div>
+ <div class="board-card"><div class="board-wrap"><div class="board" id="board"></div><svg class="overlay" viewBox="0 0 800 800" preserveAspectRatio="none"><defs><linearGradient id="ag" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#93c5fd"/></linearGradient><marker id="ah" markerUnits="userSpaceOnUse" markerWidth="26" markerHeight="26" refX="19" refY="13" orient="auto"><path d="M6 4 L19 13 L6 22" fill="none" stroke="#93c5fd" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><g id="arrows"></g></svg></div></div>
  <aside class="panel">
-  <div class="pt">ВЫБЕРИ СВОЮ СТОРОНУ</div><div class="choices"><button class="choice active" id="whiteChoice">⚪ Белыми</button><button class="choice" id="blackChoice">⚫ Чёрными</button></div>
+  <div class="pt">ВЫБЕРИ СВОЮ СТОРОНУ</div><div class="choices"><button class="choice active" id="whiteChoice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#edf5ff" stroke="#b6c8df"/><path d="M8 15a5 5 0 0 0 8 0" stroke="#8fa4be"/></svg>Белыми</button><button class="choice" id="blackChoice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#182638" stroke="#8fa4be"/><path d="M8 9a5 5 0 0 1 8 0" stroke="#647c99"/></svg>Чёрными</button></div>
   <div class="turn" id="turnLabel">Ход белых</div><div class="status" id="status">Выбери цвет. Переноси ходы соперника на доску — ответ будет найден автоматически.</div>
-  <button class="btn primary" id="hintBtn">✦ Найти лучший ход</button>
-  <div class="btnrow"><button class="btn" id="undoBtn">↶ Отменить</button><button class="btn" id="newBtn">⟳ Новая партия</button></div>
+  <div class="pt">РЕЖИМ АНАЛИЗА</div>
+  <div class="choices" role="group" aria-label="Время анализа"><button class="choice active" id="fastMode" aria-pressed="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 2-9 12h7l-1 8 10-12h-7l1-8Z"/></svg>Быстрый · 1 с</button><button class="choice" id="deepMode" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5"/></svg>Глубокий · 4,5 с</button></div>
+  <div class="tip">Быстрый — меньше ожидания. Глубокий — больше времени на проверку вариантов.</div>
+  <button class="btn primary" id="hintBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4M8 10.5h5m-2.5-2.5v5"/></svg>Найти лучший ход</button>
+  <div class="btnrow"><button class="btn" id="undoBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5-5 5 5 5M4 10h9a6 6 0 0 1 6 6v3"/></svg>Отменить</button><button class="btn" id="newBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg>Новая партия</button></div>
   <div class="pt">ПОЗИЦИЯ</div><div class="stats"><span>Белые шашки</span><b id="wc">12</b><span>Чёрные шашки</span><b id="bc">12</b><span>Твой цвет</span><b id="mySide">Белые</b><span>Очередь</span><b id="whose">Белые</b><span>Глубина поиска</span><b id="depth">—</b><span>Узлов просмотрено</span><b id="nodes">—</b></div>
   <div class="tip">Правила: обязательное взятие, простая шашка бьёт вперёд и назад, дамка ходит и бьёт на дальнюю дистанцию. Подсказка показывается только для твоего цвета.</div>
  </aside>
@@ -42,7 +46,7 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(27px,5vw,42px);fo
 (()=>{const tg=window.Telegram?.WebApp;if(tg){try{tg.ready();tg.expand();tg.setHeaderColor?.("#080e1b");tg.setBackgroundColor?.("#080e1b");tg.disableVerticalSwipes?.()}catch(e){}}})();
 "use strict";
 const $=id=>document.getElementById(id), dirs=[[-1,-1],[-1,1],[1,-1],[1,1]], idx=(r,c)=>r*8+c, rc=i=>[i>>3,i&7], inside=(r,c)=>r>=0&&r<8&&c>=0&&c<8, sgn=Math.sign, isKing=p=>Math.abs(p)===2;
-let board,turn=1,myColor=1,selected=null,hint=null,history=[],worker=null,thinking=false,requestId=0;
+let board,turn=1,myColor=1,selected=null,hint=null,history=[],worker=null,thinking=false,requestId=0,analysisBudget=1000;
 function startBoard(){const b=Array(64).fill(0);for(let r=0;r<3;r++)for(let c=0;c<8;c++)if((r+c)&1)b[idx(r,c)]=-1;for(let r=5;r<8;r++)for(let c=0;c<8;c++)if((r+c)&1)b[idx(r,c)]=1;return b}
 function coord(i){const [r,c]=rc(i);return "abcdefgh"[c]+(8-r)}
 function count(){let w=0,k=0;for(const p of board){if(p>0)w++;if(p<0)k++}return [w,k]}
@@ -64,16 +68,22 @@ function drawArrow(){
   add("path",{d,fill:"none",stroke:"#172333","stroke-opacity":.65,"stroke-width":11,"stroke-linecap":"round","stroke-linejoin":"round"});
   add("path",{d,fill:"none",stroke:"url(#ag)","stroke-width":5,"stroke-linecap":"round","stroke-linejoin":"round","marker-end":"url(#ah)"});
   for(let i=1;i<pts.length-1;i++){
-    add("circle",{cx:pts[i][0],cy:pts[i][1],r:12,fill:"#253348",stroke:"#f4d58c","stroke-width":2});
-    const text=add("text",{x:pts[i][0],y:pts[i][1]+5,"text-anchor":"middle",fill:"#fff0c5","font-size":15,"font-family":"system-ui","font-weight":700});text.textContent=i;
+    add("circle",{cx:pts[i][0],cy:pts[i][1],r:12,fill:"#253348",stroke:"#60a5fa","stroke-width":2});
+    const text=add("text",{x:pts[i][0],y:pts[i][1]+5,"text-anchor":"middle",fill:"#93c5fd","font-size":15,"font-family":"system-ui","font-weight":700});text.textContent=i;
   }
 }
 function cancelAnalysis(){if(worker){worker.terminate();worker=null}thinking=false;requestId++;}
 function updatePanel(){const [w,b]=count();$("wc").textContent=w;$("bc").textContent=b;$("mySide").textContent=myColor===1?"Белые":"Чёрные";$("whose").textContent=turn===1?"Белые":"Чёрные";$("turnLabel").textContent=turn===myColor?"ТВОЙ ХОД":"ХОД СОПЕРНИКА";$("whiteChoice").classList.toggle("active",myColor===1);$("blackChoice").classList.toggle("active",myColor===-1);$("hintBtn").disabled=thinking||turn!==myColor}
 function clickCell(i){if((thinking&&!hint)||(rc(i)[0]+rc(i)[1])%2===0)return;if(selected!==null){const candidate=moves(board,turn).find(m=>m.from===selected&&m.to===i);if(candidate){cancelAnalysis();save();board=candidate.board;turn=-turn;selected=null;hint=null;render();if(turn===myColor)autoHint();else status("Ход записан. Ожидаю ход соперника.");return}}if(sgn(board[i])===turn){cancelAnalysis();selected=i;hint=null;render();status("Шашка выбрана. Нажми на подсвеченную клетку назначения.")}else{selected=null;render()}}
-function analyze(){if(turn!==myColor||thinking)return;if(!worker){try{worker=new Worker("engine-worker.js")}catch(e){status("Не удалось запустить движок: "+e.message);return}worker.onmessage=e=>{const d=e.data;if(d.requestId!==requestId)return;thinking=Boolean(d.partial);if(d.error){thinking=false;status("Ошибка движка: "+d.error);render();return}if(!d.move){thinking=false;render();status("У тебя нет допустимых ходов. Партия окончена.");return}hint=d.move;$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");render();const route=[d.move.from,...d.move.path].map(coord).join(" → ");status(d.partial?`Подсказка: ${route}. Глубина ${d.move.depth} — уточняю. Можно уже сделать ход.`:`Лучший найденный ход: ${route}. Глубина ${d.move.depth}. Анализ завершён.`)};worker.onerror=e=>{thinking=false;status("Ошибка Worker. Проверь, что engine-worker.js загружен рядом с index.html.");}}
-thinking=true;hint=null;selected=null;updatePanel();status("Ищу ход — подсказка появится по мере анализа…");requestId++;worker.postMessage({board:board.slice(),player:turn,budgetMs:4500,requestId})}
+function analyze(){if(turn!==myColor||thinking)return;if(!worker){try{worker=new Worker("engine-worker.js?v=4")}catch(e){status("Не удалось запустить движок: "+e.message);return}worker.onmessage=e=>{const d=e.data;if(d.requestId!==requestId)return;thinking=Boolean(d.partial);if(d.error){thinking=false;status("Ошибка движка: "+d.error);render();return}if(!d.move){thinking=false;render();status("У тебя нет допустимых ходов. Партия окончена.");return}hint=d.move;$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");render();const route=[d.move.from,...d.move.path].map(coord).join(" → ");status(d.partial?`Подсказка: ${route}. Глубина ${d.move.depth} — уточняю. Можно уже сделать ход.`:`Лучший найденный ход: ${route}. Глубина ${d.move.depth}. Анализ завершён.`)};worker.onerror=e=>{thinking=false;status("Ошибка Worker. Проверь, что engine-worker.js загружен рядом с index.html.");}}
+thinking=true;hint=null;selected=null;updatePanel();status("Ищу ход — подсказка появится по мере анализа…");requestId++;worker.postMessage({board:board.slice(),player:turn,budgetMs:analysisBudget,requestId})}
 function autoHint(){if(turn===myColor&&!thinking)setTimeout(()=>{if(turn===myColor&&!thinking)analyze()},120)}
+function setAnalysisMode(budget){
+  cancelAnalysis();analysisBudget=budget;
+  for(const [id,active] of [["fastMode",budget===1000],["deepMode",budget===4500]]){$(id).classList.toggle("active",active);$(id).setAttribute("aria-pressed",String(active));}
+  if(turn===myColor)analyze();else status("Режим анализа изменён. Ожидаю ход соперника.");
+}
+$("fastMode").onclick=()=>setAnalysisMode(1000);$("deepMode").onclick=()=>setAnalysisMode(4500);
 function setColor(c){cancelAnalysis();myColor=c;selected=null;hint=null;render();if(turn===myColor)autoHint();else status("Ожидаю ход соперника. После его хода подсказка появится автоматически.")}
 $("whiteChoice").onclick=()=>setColor(1);$("blackChoice").onclick=()=>setColor(-1);$("hintBtn").onclick=analyze;
 $("undoBtn").onclick=()=>{cancelAnalysis();if(!history.length){status("Пока нечего отменять.");return}const s=history.pop();board=s.board;turn=s.turn;hint=null;selected=null;render();status(turn===myColor?"Твой ход.":"Ход соперника.")};

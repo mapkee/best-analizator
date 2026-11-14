@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Анализатор русских шашек Pro</title>
+<title>Анализатор русских шашек</title>
 <style>
   body { font-family: system-ui, -apple-system, sans-serif; background: #18181c; color: #f0f0f0; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 12px; }
   h2 { margin: 4px 0 12px; font-size: 1.25rem; }
@@ -19,7 +19,7 @@
   .black { background: radial-gradient(circle at 30% 30%, #484848, #121212); color: #ffd700; border: 2px solid #000; }
   svg.overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
   .controls { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 470px; }
-  button, select { padding: 10px 13px; font-size: 0.92rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  button, select { padding: 10px 14px; font-size: 0.94rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
   .btn-go { background: #00c853; color: #000; }
   .btn-undo { background: #455a64; color: #fff; }
   .btn-reset { background: #37474f; color: #fff; }
@@ -49,17 +49,12 @@
     <option value="1">Я играю: Белыми (внизу)</option>
     <option value="-1">Я играю: Черными (внизу)</option>
   </select>
-  <select id="depthSelect">
-    <option value="4">Сила: Быстро (4)</option>
-    <option value="6" selected>Сила: Сильно (6)</option>
-    <option value="8">Сила: Макс (8)</option>
-  </select>
   <button class="btn-go" onclick="findBestMove()">Подсказать ход</button>
   <button class="btn-undo" onclick="undoMove()">Назад</button>
   <button class="btn-reset" onclick="resetBoard()">Сброс</button>
   <button class="btn-edit" id="editBtn" onclick="toggleEdit()">Расстановка: ВЫКЛ</button>
 </div>
-<div class="status" id="status">Ваш ход. Нажмите «Подсказать ход» для стрелки.</div>
+<div class="status" id="status"></div>
 
 <script>
 // 1 = белая простая, 2 = белая дамка, -1 = черная простая, -2 = черная дамка
@@ -71,12 +66,14 @@ let bestHint = null;
 let editMode = false;
 let history = [];
 
+const MAX_DEPTH = 8;
+
 function saveHistory() {
   history.push({
     board: board.map(r => [...r]),
     turn: turn
   });
-  if (history.length > 50) history.shift();
+  if (history.length > 60) history.shift();
 }
 
 function undoMove() {
@@ -89,7 +86,7 @@ function undoMove() {
   turn = prev.turn;
   selected = null;
   bestHint = null;
-  setStatus("Ход отменен. " + (turn === 1 ? "Очередь белых." : "Очередь черных."));
+  setStatus(turn === 1 ? "Ход белых." : "Ход черных.");
   render();
   if (turn === myColor && !editMode) findBestMove();
 }
@@ -108,17 +105,21 @@ function resetBoard() {
   history = [];
   selected = null;
   bestHint = null;
-  setStatus("Начальная позиция. Ход белых.");
+  setStatus(turn === myColor ? "Ваш ход." : "Сделайте ход белых на доске.");
   render();
   if (turn === myColor) findBestMove();
 }
 
 function changeMyColor() {
-  myColor = parseInt(document.getElementById('myColorSelect').value);
+  myColor = parseInt(document.getElementById('myColorSelect').value, 10);
   selected = null;
   bestHint = null;
   render();
-  if (turn === myColor && !editMode) findBestMove();
+  if (turn === myColor && !editMode) {
+    findBestMove();
+  } else if (!editMode) {
+    setStatus("Сделайте ход соперника на доске.");
+  }
 }
 
 function toggleEdit() {
@@ -131,11 +132,11 @@ function toggleEdit() {
   btn.style.color = editMode ? "#000" : "#fff";
   if (!editMode) {
     turn = myColor;
-    setStatus("Расстановка завершена. Ваш ход.");
+    setStatus("Ваш ход.");
     render();
     findBestMove();
   } else {
-    setStatus("Кликайте по темным клеткам: Белая → Дамка → Черная → Дамка → Пусто");
+    setStatus("Кликайте по клеткам: Белая → Дамка → Черная → Дамка → Пусто");
     render();
   }
 }
@@ -144,7 +145,6 @@ function setStatus(msg) {
   document.getElementById('status').textContent = msg;
 }
 
-// Перевод координат логической доски в экранные (с учетом переворота)
 function toScreen(r, c) {
   return myColor === 1 ? { sr: r, sc: c } : { sr: 7 - r, sc: 7 - c };
 }
@@ -175,7 +175,7 @@ function drawArrow(move) {
     line.setAttribute("stroke", "#00e676");
     line.setAttribute("stroke-width", "16");
     line.setAttribute("stroke-linecap", "round");
-    line.setAttribute("opacity", "0.88");
+    line.setAttribute("opacity", "0.9");
     if (i === points.length - 2) {
       line.setAttribute("marker-end", "url(#arrowhead)");
     }
@@ -267,7 +267,6 @@ function onCellClick(r, c) {
   }
 }
 
-// Правила русских шашек: обязательное взятие (вперед и назад), дальнобойные дамки
 function getLegalMoves(b, side) {
   let captures = [];
   let quiet = [];
@@ -288,9 +287,20 @@ function getPieceQuietMoves(b, r, c, piece) {
   const res = [];
   const isKing = Math.abs(piece) === 2;
   const dirs = isKing
-    ? [[-1,-1], [-1,1], [1,-1],]
-    : (piece > 0 ? [[-1,-1], [-1,1]] : [[1,-1],]);
+    ? [[-1,-1], [-1,1], [1,-1], [1,1]]
+    : (piece > 0 ? [[-1,-1], [-1,1]] : [[1,-1], [1,1]]);
 
   for (const [dr, dc] of dirs) {
     let nr = r + dr, nc = c + dc;
+    while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && b[nr][nc] === 0) {
+      res.push({ from: {r, c}, to: {r: nr, c: nc}, captured: [], path: [] });
+      if (!isKing) break;
+      nr += dr;
+      nc += dc;
+    }
+  }
+  return res;
+}
 
+function getPieceCaptures(b, r, c, piece, visited = []) {
+  const res = [];

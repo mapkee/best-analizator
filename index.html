@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080e1b"><meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#090b0e"><meta name="mobile-web-app-capable" content="yes">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <title>На шаг впереди — читы для шашек</title>
 <style>
@@ -25,12 +25,17 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
 .choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
-</style><link rel="stylesheet" href="ui.css?v=1"></head>
+</style><link rel="stylesheet" href="ui.css?v=2"></head>
 <body>
-<header class="brand"><img class="brand-avatar" src="docs/bot-avatar.png" alt=""><div><div class="tag">ЧИТЫ ДЛЯ ШАШЕК</div><h1 class="logo">На шаг впереди</h1><p class="brand-caption">Будь на ход дальше.</p></div></header>
-<section class="app">
+<nav class="site-nav" aria-label="Навигация">
+ <a class="wordmark" href="#"><svg class="brand-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="m4 23 10-14h7L11 23H4Zm12 0 10-14h3L19 23h-3Z" fill="currentColor"/></svg>НА ШАГ ВПЕРЕДИ</a>
+ <div class="nav-links"><a class="nav-app" href="#play">Приложение</a><a href="https://github.com/mapkee/one-step-ahead" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-telegram" href="https://t.me/shashkamovebot">Telegram</a></div>
+</nav>
+<header class="brand"><div><div class="hero-eyebrow">РУССКИЕ ШАШКИ · 8 × 8</div><h1 class="logo">На шаг впереди</h1><div class="tag">Читы для шашек</div><p class="brand-caption">Видеть дальше. Ходить точнее.<br>Записывай ходы на доске и находи сильное продолжение.</p><div class="hero-meta"><span><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8 3 3 7-7" stroke="currentColor" stroke-width="1.5"/></svg>Бесплатно</span><span><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="2" stroke="currentColor"/><path d="M6 11h4" stroke="currentColor"/></svg>Внутри Telegram</span></div></div><div class="hero-visual" aria-hidden="true"><div class="hero-grid"></div><div class="hero-disc hero-disc-back"></div><div class="hero-disc"></div><svg class="hero-route" viewBox="0 0 245 160" fill="none"><path d="M28 128 Q140 146 213 29" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="m193 37 24-15-3 29" fill="currentColor"/></svg></div></header>
+<section class="app" id="play" aria-label="Шашечная доска и параметры">
  <div class="board-card"><div class="board-heading"><span>Игровая доска</span><span class="board-badge">8 × 8</span></div><div class="board-wrap"><div class="board" id="board"></div><svg class="overlay" viewBox="0 0 800 800" preserveAspectRatio="none"><defs><linearGradient id="ag"><stop stop-color="#3b82f6"/><stop offset="1" stop-color="#60a5fa"/></linearGradient><marker id="ah" markerUnits="userSpaceOnUse" markerWidth="32" markerHeight="32" refX="8" refY="16" orient="auto"><path d="M2 3 L30 16 L2 29 L8 16 Z" fill="#60a5fa"/></marker></defs><g id="arrows"></g></svg></div></div>
  <aside class="panel">
+  <div class="panel-heading">Твой следующий ход<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="#111317"/><circle cx="15" cy="17" r="3" fill="#111317"/></svg></div>
   <div class="pt">ВЫБЕРИ СВОЮ СТОРОНУ</div><div class="choices"><button class="choice active" id="whiteChoice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#edf5ff" stroke="#b6c8df"/><path d="M8 15a5 5 0 0 0 8 0" stroke="#8fa4be"/></svg>Белыми</button><button class="choice" id="blackChoice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#182638" stroke="#8fa4be"/><path d="M8 9a5 5 0 0 1 8 0" stroke="#647c99"/></svg>Чёрными</button></div>
   <div class="turn" id="turnLabel">Ход белых</div><div class="status" id="status">Выбери цвет. Переноси ходы соперника на доску — ответ будет найден автоматически.</div>
   <div class="pt">РЕЖИМ АНАЛИЗА</div>
@@ -42,8 +47,14 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
   <div class="tip">Правила: обязательное взятие, простая шашка бьёт вперёд и назад, дамка ходит и бьёт на дальнюю дистанцию. Подсказка показывается только для твоего цвета.</div>
  </aside>
 </section>
+<section class="feature-strip" aria-label="Возможности">
+ <article class="feature-card"><div class="feature-kicker">01 / ПОДСКАЗКА</div><h2>Один проверенный вариант</h2><p>Стрелка появляется после завершения поиска. Без переключения между промежуточными ходами.</p></article>
+ <article class="feature-card"><div class="feature-kicker">02 / КОМБИНАЦИИ</div><h2>Каждое взятие — по шагам</h2><p>Нажимай каждую клетку приземления. Доска сохранит маршрут до завершения комбинации.</p></article>
+ <article class="feature-card"><div class="feature-kicker">03 / ТЕМП</div><h2>Выбирай глубину разбора</h2><p>Быстрый режим для короткого ожидания. Глубокий — для более тщательной проверки вариантов.</p></article>
+</section>
+<footer class="site-footer"><span>На шаг впереди<br>Читы для русских шашек</span><div class="footer-links"><a href="https://t.me/mapkee">Разработчик</a><a href="https://github.com/mapkee/one-step-ahead" target="_blank" rel="noopener noreferrer">Исходный код</a></div></footer>
 <script>
-(()=>{const tg=window.Telegram?.WebApp;if(tg){try{tg.ready();tg.expand();tg.setHeaderColor?.("#080e1b");tg.setBackgroundColor?.("#080e1b");tg.disableVerticalSwipes?.()}catch(e){}}})();
+(()=>{const tg=window.Telegram?.WebApp;if(tg){try{tg.ready();tg.expand();tg.setHeaderColor?.("#090b0e");tg.setBackgroundColor?.("#090b0e");tg.disableVerticalSwipes?.()}catch(e){}}})();
 "use strict";
 const $=id=>document.getElementById(id), dirs=[[-1,-1],[-1,1],[1,-1],[1,1]], idx=(r,c)=>r*8+c, rc=i=>[i>>3,i&7], inside=(r,c)=>r>=0&&r<8&&c>=0&&c<8, sgn=Math.sign, isKing=p=>Math.abs(p)===2;
 let board,turn=1,myColor=1,selected=null,hint=null,history=[],worker=null,thinking=false,requestId=0,analysisBudget=1000,pendingCapture=null;

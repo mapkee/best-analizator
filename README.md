@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/bot-avatar-graphite.png" alt="На шаг впереди" width="96" height="96">
+
 # На шаг впереди
 
 ### Сначала рассчитай. Потом ходи.

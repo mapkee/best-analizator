@@ -18,6 +18,7 @@ a{color:inherit;text-decoration:none}.compact-header{width:min(100%,1060px);disp
 @media(max-width:760px){body{padding:calc(11px + env(safe-area-inset-top)) 10px calc(18px + env(safe-area-inset-bottom))}.compact-header{max-width:560px;margin-bottom:13px;padding:0 2px}.app-mark{width:40px;height:40px;border-radius:12px}.compact-brand{gap:9px}.compact-brand h1{font-size:18px}.compact-brand p{font-size:9px;margin-top:3px}.contact-link{min-height:36px;padding:0 10px;font-size:10px;gap:6px}.contact-link svg{width:16px;height:16px}.app{max-width:560px;grid-template-columns:minmax(0,1fr);gap:12px}.board-card{padding:9px;border-radius:18px}.board-wrap{border-radius:9px}.panel{padding:16px;border-radius:18px;gap:11px}.square-label{font-size:9px}}
 @media(max-width:350px){.compact-brand h1{font-size:16px}.contact-link{padding:0 8px}.contact-link span{font-size:9px}.app-mark{width:35px;height:35px}}
 @media(prefers-reduced-motion:reduce){.choice,.btn{transition:none;transform:none!important}}
+
 @media(prefers-reduced-transparency:reduce){.choice,.btn{backdrop-filter:none;-webkit-backdrop-filter:none;background-color:#24364b}}
 
 /* Smoked crystal pieces. Alpha affects the material, not crowns or selection. */
@@ -38,3 +39,26 @@ a{color:inherit;text-decoration:none}.compact-header{width:min(100%,1060px);disp
 .btn:disabled{opacity:.38;box-shadow:inset 0 1px 0 #ffffff0a}.choice:active,.btn:not(:disabled):active{transform:scale(.975);box-shadow:inset 0 2px 6px #0002,0 1px 4px #0002}
 @media(prefers-reduced-transparency:reduce){.white{background:linear-gradient(145deg,#eff7ff,#c1d5e7)}.black{background:linear-gradient(145deg,#48637b,#1b2d42)}.choice,.btn{background-color:#24364b}}
 @media(prefers-reduced-motion:reduce){.choice,.btn{transition:none;transform:none!important}}
+
+/* Graphite palette: smoked silver and midnight blue, without neon lighting. */
+:root{--txt:#e5e8ef;--muted:#858d9b;--accent:#9bb2d4}
+body{background:radial-gradient(ellipse at 20% 0,#27334938,transparent 55%),#0c0f14;color:var(--txt)}
+.compact-brand h1{color:#e9ebf1}.compact-brand p{color:#858f9f}.app-mark{border-color:#aab5c32e;box-shadow:0 4px 12px #0005}
+.contact-link{color:#b7c3d6;border-color:#b8c8dd26;background:linear-gradient(145deg,#929fb41a,#78869d06);box-shadow:inset 0 1px 0 #fff1}.contact-link:hover{background:#6f82a222;border-color:#a5b4c94d}
+.board-card,.panel{background:linear-gradient(145deg,#1d232e,#131820);border-color:#a1adbf26;border-top-color:#c2cbd93d;box-shadow:inset 0 1px 0 #ffffff05,0 18px 40px #0005}
+.board-wrap{background:#242d3b;box-shadow:0 0 0 1px #0008,0 2px 0 #c2cbd910}
+.light{background:#929eae}.dark,.cell.from{background:#293343}.cell.selected{background:#445671;box-shadow:inset 0 0 0 1px #b0c5e680}.cell.to{background:radial-gradient(circle,#536580,#39485f)}
+.cell.to:before{background:#c9d9ef14}.cell.legal:after{background:#c1d1e9bb;box-shadow:0 0 0 5px #a6b8d118}
+.white{border-color:#f2f5f9a8;background:radial-gradient(ellipse at 30% 14%,#ffffffbd,transparent 48%),linear-gradient(145deg,#eef2f8a8,#cad3df7a 52%,#b1bdce50)}
+.black{border-color:#bec9da66;background:radial-gradient(ellipse at 30% 14%,#c3cdde3b,transparent 50%),linear-gradient(145deg,#78849945,#283347a1 54%,#101722c9);box-shadow:0 3px 0 #060b1370,0 7px 13px #0005,inset 0 1px 2px #e4ebf455,inset 0 -2px 4px #0003}
+.piece:before{border-color:#f2f5fa45;background:radial-gradient(ellipse at 28% 10%,#fff3,transparent 65%);box-shadow:0 1px 0 #ffffff12,inset 0 1px 2px #1017271a}.black:before{border-color:#d2dbea33;background:radial-gradient(ellipse at 28% 10%,#e1e8f412,transparent 65%)}
+.cell.from .piece{box-shadow:0 3px 0 #07102042,0 7px 13px #0004,inset 0 1px 2px #ffffffa0,0 0 0 2px #b1c5e08c}.king:after{color:#d9e1ed;text-shadow:0 1px 2px #0006}
+.square-label{color:#c2cad78c}.light .square-label{color:#253043a6}.pt{color:#8994a5}.panel-heading svg{color:#8997ac}
+.choice,.btn{color:#c3cad6;border-color:#c9d2df26;border-top-color:#e2e7f04d;border-bottom-color:#bdc8d916;background:linear-gradient(155deg,#d4dcea19,#b5c0d308 52%,#8b9bb312);box-shadow:inset 0 1px 0 #fff1,inset 0 -1px 0 #d7deed05,0 3px 8px #0004}
+.choice:hover,.btn:not(:disabled):hover{background:linear-gradient(155deg,#e1e6f024,#bac5d60b 52%,#92a1b81a);border-color:#c4cfe044;box-shadow:inset 0 1px 0 #ffffff1f,0 4px 12px #0004}
+.choice.active{color:#ecf0f7;border-color:#9bafcf66;border-top-color:#c0cfe28c;background:linear-gradient(150deg,#8ca4c53d,#536c9238 55%,#405a7c30);box-shadow:inset 0 1px 0 #f0f4ff1f,inset 0 -1px 0 #abbad00a,0 3px 9px #0004}
+.btn.primary{background:linear-gradient(150deg,#7088aaa1,#435f89bd 52%,#2c4567cc);border-color:#a2b8d780;border-top-color:#d9e3f3a6;color:#f1f4fa;box-shadow:inset 0 1px 0 #fff3,inset 0 -1px 0 #b4c2d916,0 5px 17px #0003;text-shadow:0 1px 2px #12203880}
+.btn.primary:not(:disabled):hover{background:linear-gradient(150deg,#8198b9b3,#4e6d99cc 52%,#355378d9);border-color:#b1c3dd99;box-shadow:inset 0 1px 0 #ffffff40,0 6px 20px #0004}
+.btn:disabled{opacity:.38;box-shadow:inset 0 1px 0 #ffffff0a}.turn{color:#bbcbe2;background:#4b60832b;border-color:#8b9ebd30}.status{color:#bdc9da;background:#090e1680;border-color:#9baec926}.status.analyzing{background:#28395244;border-color:#8ca5c344}.status.analyzing:before{background:#a8bcd9}.position-stats{border-color:#b8c5d91a}.stats{color:#8f9aab}.stats b{color:#d2dbe8}
+.choice:focus-visible,.btn:focus-visible,.contact-link:focus-visible{outline-color:#b7cae6}.cell:focus-visible{outline-color:#b7cae6}
+@media(prefers-reduced-transparency:reduce){.white{background:linear-gradient(145deg,#eff2f8,#c4cedc)}.black{background:linear-gradient(145deg,#465266,#1d2738)}.choice,.btn{background-color:#2b3444}}

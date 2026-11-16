@@ -2,9 +2,10 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090b0e"><meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0c0f14"><meta name="mobile-web-app-capable" content="yes">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <title>На шаг впереди — читы для шашек</title>
+<link rel="icon" type="image/png" href="docs/bot-avatar-graphite.png">
 <style>
 :root{color-scheme:dark;--bg:#070d18;--panel:#101d30;--line:#294463;--blue:#38bdf8;--cyan:#67e8f9;--txt:#eff7ff;--muted:#91a6c2}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;min-height:100dvh;padding:calc(14px + env(safe-area-inset-top)) 12px calc(22px + env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% -10%,#17365d,#091426 48%,#050a12);color:var(--txt);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;display:flex;align-items:center;flex-direction:column}
@@ -25,14 +26,14 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
 .choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
-</style><link rel="stylesheet" href="ui.css?v=6"></head>
+</style><link rel="stylesheet" href="ui.css?v=7"></head>
 <body>
 <header class="compact-header">
- <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar.png" alt="Аватарка бота"><div><h1>На шаг впереди</h1><p>Читы для шашек</p></div></div>
+ <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar-graphite.png" alt="Аватарка бота"><div><h1>На шаг впереди</h1><p>Читы для шашек</p></div></div>
  <a class="contact-link" href="https://t.me/mapkee" aria-label="Написать разработчику в Telegram"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 3.7 18 20c-.3 1.2-1 1.5-2 .9l-5.3-3.9-2.6 2.5c-.3.3-.5.5-1 .5l.4-5.4 9.8-8.8c.4-.4-.1-.6-.6-.3L4.6 13.1l-5.2-1.6c-1.1-.3-1.1-1.1.2-1.6L20 2.2c.9-.3 1.8.2 1.5 1.5Z" transform="translate(1 1) scale(.92)"/></svg><span>Telegram</span></a>
 </header>
 <section class="app" id="play" aria-label="Шашечная доска и параметры">
- <div class="board-card"><div class="board-wrap"><div class="board" id="board"></div><svg class="overlay" viewBox="0 0 800 800" preserveAspectRatio="none"><defs><linearGradient id="ag"><stop stop-color="#3b82f6"/><stop offset="1" stop-color="#60a5fa"/></linearGradient><marker id="ah" markerUnits="userSpaceOnUse" markerWidth="32" markerHeight="32" refX="8" refY="16" orient="auto"><path d="M2 3 L30 16 L2 29 L8 16 Z" fill="#60a5fa"/></marker></defs><g id="arrows"></g></svg></div></div>
+ <div class="board-card"><div class="board-wrap"><div class="board" id="board"></div><svg class="overlay" viewBox="0 0 800 800" preserveAspectRatio="none"><defs><linearGradient id="ag"><stop stop-color="#5476a1"/><stop offset="1" stop-color="#9cb9df"/></linearGradient><marker id="ah" markerUnits="userSpaceOnUse" markerWidth="32" markerHeight="32" refX="8" refY="16" orient="auto"><path d="M2 3 L30 16 L2 29 L8 16 Z" fill="#9cb9df"/></marker></defs><g id="arrows"></g></svg></div></div>
  <aside class="panel">
   <div class="panel-heading">Управление<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="#111317"/><circle cx="15" cy="17" r="3" fill="#111317"/></svg></div>
   <div class="pt">ВЫБЕРИ СВОЮ СТОРОНУ</div><div class="choices"><button class="choice active" id="whiteChoice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#edf5ff" stroke="#b6c8df"/><path d="M8 15a5 5 0 0 0 8 0" stroke="#8fa4be"/></svg>Белыми</button><button class="choice" id="blackChoice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#182638" stroke="#8fa4be"/><path d="M8 9a5 5 0 0 1 8 0" stroke="#647c99"/></svg>Чёрными</button></div>
@@ -46,7 +47,7 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
  </aside>
 </section>
 <script>
-(()=>{const tg=window.Telegram?.WebApp;if(tg){try{tg.ready();tg.expand();tg.setHeaderColor?.("#090b0e");tg.setBackgroundColor?.("#090b0e");tg.disableVerticalSwipes?.()}catch(e){}}})();
+(()=>{const tg=window.Telegram?.WebApp;if(tg){try{tg.ready();tg.expand();tg.setHeaderColor?.("#0c0f14");tg.setBackgroundColor?.("#0c0f14");tg.disableVerticalSwipes?.()}catch(e){}}})();
 "use strict";
 const $=id=>document.getElementById(id), dirs=[[-1,-1],[-1,1],[1,-1],[1,1]], idx=(r,c)=>r*8+c, rc=i=>[i>>3,i&7], inside=(r,c)=>r>=0&&r<8&&c>=0&&c<8, sgn=Math.sign, isKing=p=>Math.abs(p)===2;
 let board,turn=1,myColor=1,selected=null,hint=null,history=[],worker=null,thinking=false,requestId=0,analysisBudget=1000,pendingCapture=null,moveAnimation=null,animating=false;

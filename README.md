@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/bot-avatar-steel.png" alt="На шаг впереди" width="96" height="96">
+<img src="docs/bot-avatar-selected.png" alt="На шаг впереди" width="96" height="96">
 
 # На шаг впереди
 

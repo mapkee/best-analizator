@@ -81,3 +81,12 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 .black .piece-top:before{border-color:#a3bbd64d;background:linear-gradient(145deg,#d7e8fa08,#0002);box-shadow:inset 0 2px 2px #0004,0 1px 0 #b7d4f329}
 .cell.from .piece{box-shadow:none;outline:none}.cell.from .piece-top{outline:2px solid #bbd9f2a1;outline-offset:1px}
 .king:after{position:absolute;top:0;left:0;width:100%;height:82%;display:flex;align-items:center;justify-content:center;z-index:2;font-size:clamp(16px,2.6vw,25px);transform:none;pointer-events:none;text-shadow:0 2px 1px #152844a1}
+
+/* Animate only the final landing square; route and arrow remain still. */
+.cell.hint-target{isolation:isolate}
+.cell.hint-target:before,.cell.hint-target:after{content:"";position:absolute;pointer-events:none;border-radius:50%;z-index:0}
+.cell.hint-target:before{inset:9%;background:radial-gradient(circle,#bddcff47 0%,#7ca9dd24 42%,transparent 72%);box-shadow:none;animation:target-glow 2.4s ease-in-out infinite}
+.cell.hint-target:after{inset:26%;border:1px solid #c4e1ff8c;background:none;box-shadow:0 0 8px #84b5ed20;animation:target-ripple 2.4s ease-out infinite}
+@keyframes target-glow{0%,100%{opacity:.45;transform:scale(.87)}50%{opacity:1;transform:scale(1.07)}}
+@keyframes target-ripple{0%{opacity:0;transform:scale(.55)}15%{opacity:.7}85%,100%{opacity:0;transform:scale(1.9)}}
+@media(prefers-reduced-motion:reduce){.cell.hint-target:before,.cell.hint-target:after{animation:none;transform:none}.cell.hint-target:before{opacity:.7}.cell.hint-target:after{opacity:.5}}

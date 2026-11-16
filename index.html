@@ -26,7 +26,7 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
 .choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
-</style><link rel="stylesheet" href="ui.css?v=11"></head>
+</style><link rel="stylesheet" href="ui.css?v=12"></head>
 <body>
 <header class="compact-header">
  <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar-selected.png" alt="Аватарка бота"><div><h1>На шаг впереди</h1><p>Читы для шашек</p></div></div>
@@ -71,7 +71,7 @@ function render(motion){
     cell.className="cell "+(((r+c)&1)?"dark":"light");
     cell.setAttribute("role","button");cell.setAttribute("tabindex","0");cell.setAttribute("aria-label",coord(i));
     if(selected===i)cell.classList.add("selected");
-    if(hint){if(hint.from===i)cell.classList.add("from");if(hint.path.includes(i))cell.classList.add("to")}
+    if(hint){if(hint.from===i)cell.classList.add("from");if(hint.path.includes(i))cell.classList.add("to");if(hint.path.at(-1)===i)cell.classList.add("hint-target")}
     if(legal.includes(i))cell.classList.add("legal");
     if(board[i]){const pc=document.createElement("div");pc.className="piece "+(board[i]>0?"white":"black")+(isKing(board[i])?" king":"");for(const part of ["piece-body","piece-top"]){const layer=document.createElement("span");layer.className=part;pc.appendChild(layer);}cell.appendChild(pc);if(motion&&i===motion.to)movingPiece=pc;}
     if(sc===0){const label=document.createElement("span");label.className="square-label rank";label.textContent=8-r;cell.appendChild(label)}

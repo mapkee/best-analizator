@@ -19,3 +19,22 @@ a{color:inherit;text-decoration:none}.compact-header{width:min(100%,1060px);disp
 @media(max-width:350px){.compact-brand h1{font-size:16px}.contact-link{padding:0 8px}.contact-link span{font-size:9px}.app-mark{width:35px;height:35px}}
 @media(prefers-reduced-motion:reduce){.choice,.btn{transition:none;transform:none!important}}
 @media(prefers-reduced-transparency:reduce){.choice,.btn{backdrop-filter:none;-webkit-backdrop-filter:none;background-color:#24364b}}
+
+/* Smoked crystal pieces. Alpha affects the material, not crowns or selection. */
+.piece{border-width:1px;box-shadow:0 3px 0 #07162c42,0 7px 13px #0004,inset 0 1px 2px #ffffffa0,inset 0 -2px 4px #13283e38}
+.white{border-color:#f1faffbf;background:radial-gradient(ellipse at 30% 14%,#ffffffc9,transparent 48%),linear-gradient(145deg,#e7f5ffb3,#c2deef7a 52%,#aacfe74d)}
+.black{border-color:#c0e1ff70;background:radial-gradient(ellipse at 30% 14%,#b6d9f450,transparent 50%),linear-gradient(145deg,#698fab55,#1c354c99 54%,#091a2bba);box-shadow:0 3px 0 #050e1d70,0 7px 13px #0005,inset 0 1px 2px #e4f5ff66,inset 0 -2px 4px #0003}
+.piece:before{inset:14%;border-color:#f0f9ff52;background:radial-gradient(ellipse at 28% 10%,#ffffff33,transparent 65%);box-shadow:0 1px 0 #ffffff15,inset 0 1px 2px #0b23471a}
+.black:before{border-color:#c9e6fc42;background:radial-gradient(ellipse at 28% 10%,#d1ecff1a,transparent 65%)}
+.cell.from .piece{box-shadow:0 3px 0 #07162c42,0 7px 13px #0004,inset 0 1px 2px #ffffffa0,0 0 0 2px #95dbff99}
+
+/* Fine luminous edges, a reflected upper surface, and gentle tactile depth. */
+.choice,.btn{isolation:isolate;overflow:hidden;border-radius:14px;border-color:#c9e7ff2e;border-top-color:#ebf7ff66;border-bottom-color:#a9c5df1c;background:linear-gradient(155deg,#d9efff20,#b4dcff08 52%,#78b7e412);color:#d0dfef;box-shadow:inset 0 1px 0 #ffffff0d,inset 0 -1px 0 #d7edff08,0 3px 8px #0003;letter-spacing:.1px;transition:background .18s,box-shadow .18s,border-color .18s,transform .18s}
+.choice:before,.btn:before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;background:radial-gradient(ellipse at 18% 0,#ffffff1c,transparent 68%),linear-gradient(180deg,#ffffff06,transparent 45%)}
+.choice:hover,.btn:not(:disabled):hover{background:linear-gradient(155deg,#dcf1ff2b,#b4dcff0c 52%,#78b7e41b);border-color:#c4e7ff55;box-shadow:inset 0 1px 0 #ffffff24,0 4px 12px #0003}
+.choice.active{color:#edf9ff;border-color:#a2dcff77;border-top-color:#d1efff99;background:linear-gradient(150deg,#62bded44,#2c88ce30 55%,#2875ae38);box-shadow:inset 0 1px 0 #f0fbff24,inset 0 -1px 0 #87d1ff0d,0 3px 9px #0003}
+.btn.primary{background:linear-gradient(150deg,#7cd8ff94,#269debab 52%,#3479cfb8);border-color:#a9e1ff99;border-top-color:#e8faffce;color:#f5fcff;box-shadow:inset 0 1px 0 #ffffff40,inset 0 -1px 0 #92daff16,0 5px 17px #0076d52b;text-shadow:0 1px 2px #124e7d80}
+.btn.primary:not(:disabled):hover{background:linear-gradient(150deg,#91dfffab,#36abf1bd 52%,#3c89dbcc);border-color:#c2ecffb3;box-shadow:inset 0 1px 0 #ffffff50,0 6px 20px #0076d538}
+.btn:disabled{opacity:.38;box-shadow:inset 0 1px 0 #ffffff0a}.choice:active,.btn:not(:disabled):active{transform:scale(.975);box-shadow:inset 0 2px 6px #0002,0 1px 4px #0002}
+@media(prefers-reduced-transparency:reduce){.white{background:linear-gradient(145deg,#eff7ff,#c1d5e7)}.black{background:linear-gradient(145deg,#48637b,#1b2d42)}.choice,.btn{background-color:#24364b}}
+@media(prefers-reduced-motion:reduce){.choice,.btn{transition:none;transform:none!important}}

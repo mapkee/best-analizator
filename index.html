@@ -25,7 +25,7 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
 .choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
-</style><link rel="stylesheet" href="ui.css?v=5"></head>
+</style><link rel="stylesheet" href="ui.css?v=6"></head>
 <body>
 <header class="compact-header">
  <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar.png" alt="Аватарка бота"><div><h1>На шаг впереди</h1><p>Читы для шашек</p></div></div>
@@ -41,7 +41,7 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
   <div class="choices" role="group" aria-label="Время анализа"><button class="choice active" id="fastMode" aria-pressed="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 2-9 12h7l-1 8 10-12h-7l1-8Z"/></svg>Быстрый · 1 с</button><button class="choice" id="deepMode" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5"/></svg>Глубокий · 4,5 с</button></div>
   <button class="btn primary" id="hintBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4M8 10.5h5m-2.5-2.5v5"/></svg>Найти лучший ход</button>
   <div class="btnrow"><button class="btn" id="undoBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5-5 5 5 5M4 10h9a6 6 0 0 1 6 6v3"/></svg>Отменить</button><button class="btn" id="newBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg>Новая партия</button></div>
-  <section class="position-stats" aria-label="Статистика позиции"><div class="pt">СТАТИСТИКА</div><div class="stats"><span>Белые шашки</span><b id="wc">12</b><span>Чёрные шашки</span><b id="bc">12</b><span>Твой цвет</span><b id="mySide">Белые</b><span>Очередь</span><b id="whose">Белые</b><span>Глубина поиска</span><b id="depth">—</b><span>Узлов просмотрено</span><b id="nodes">—</b></div>
+  <section class="position-stats" aria-label="Статистика позиции"><div class="pt">СТАТИСТИКА</div><div class="stats"><span>Белые шашки</span><b id="wc">12</b><span>Чёрные шашки</span><b id="bc">12</b><span>Глубина поиска</span><b id="depth">—</b><span>Узлов просмотрено</span><b id="nodes">—</b></div>
   </section>
  </aside>
 </section>
@@ -115,7 +115,7 @@ function drawArrow(){
   }
 }
 function cancelAnalysis(){cancelMoveAnimation();if(worker){worker.terminate();worker=null}thinking=false;requestId++;}
-function updatePanel(){const [w,b]=count();$("wc").textContent=w;$("bc").textContent=b;$("mySide").textContent=myColor===1?"Белые":"Чёрные";$("whose").textContent=turn===1?"Белые":"Чёрные";$("turnLabel").textContent=turn===myColor?"ТВОЙ ХОД":"ХОД СОПЕРНИКА";$("whiteChoice").classList.toggle("active",myColor===1);$("blackChoice").classList.toggle("active",myColor===-1);$("hintBtn").disabled=thinking||animating||turn!==myColor||Boolean(pendingCapture)}
+function updatePanel(){const [w,b]=count();$("wc").textContent=w;$("bc").textContent=b;$("turnLabel").textContent=turn===myColor?"ТВОЙ ХОД":"ХОД СОПЕРНИКА";$("whiteChoice").classList.toggle("active",myColor===1);$("blackChoice").classList.toggle("active",myColor===-1);$("hintBtn").disabled=thinking||animating||turn!==myColor||Boolean(pendingCapture)}
 function finishMove(motion){
   pendingCapture=null;turn=-turn;selected=null;hint=null;render(motion);
   if(turn===myColor)autoHint();else status("Ход записан. Ожидаю ход соперника.");

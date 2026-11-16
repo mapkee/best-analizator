@@ -39,7 +39,7 @@ assert.equal(run('thinking'),false);
 assert.equal(elements.get('arrows').children.filter(el=>el.attributes['marker-end']).length,1);
 run('clickCell(40);clickCell(33)');
 assert.equal(run('turn'),-1);
-assert.equal(worker.terminated,true);
+assert.equal(worker.terminated,undefined);
 const oldBoard=run('JSON.stringify(board)');
 worker.onmessage({data:{requestId:id,partial:false,move:{from:40,to:33,path:[33],captures:[],depth:9}}});
 assert.equal(run('JSON.stringify(board)'),oldBoard);

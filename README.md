@@ -2,7 +2,7 @@
 
 <img src="docs/bot-avatar-selected.png" alt="OneStep" width="108" height="108">
 
-# OneStep
+<h1><img src="docs/wordmark.svg" alt="OneStep" width="320"></h1>
 
 ### Будь на ход дальше.
 

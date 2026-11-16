@@ -101,3 +101,10 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 @keyframes firework-burst{0%{opacity:0;transform:translate(0,0) scale(.2)}6%{opacity:1}65%{opacity:.8;transform:translate(var(--dx),var(--dy)) scale(.85)}100%{opacity:0;transform:translate(var(--dx),var(--fall)) scale(.1)}}
 @keyframes result-appear{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.result-dialog{animation:none}.fireworks{display:none}}
+
+/* OneStep wordmark: a larger, tightly set silver signature. */
+.compact-brand{gap:15px}.app-mark{width:62px;height:62px;border-radius:17px}
+.compact-brand .wordmark-title{font-family:"Arial Black",Inter,system-ui,sans-serif;font-size:38px;line-height:1.06;font-weight:900;font-style:italic;letter-spacing:-2px;color:#f0f4fa;text-shadow:0 2px 8px #0003;white-space:nowrap}
+.wordmark-title span{color:#a6bddc}.compact-brand p{font-size:10px;letter-spacing:1.6px;margin-top:6px;color:#8f9fb6}
+@media(max-width:760px){.app-mark{width:51px;height:51px;border-radius:14px}.compact-brand{gap:11px}.compact-brand .wordmark-title{font-size:30px;letter-spacing:-1.7px}.compact-brand p{font-size:8px;letter-spacing:1px;margin-top:5px}.contact-link{padding:0 10px}}
+@media(max-width:360px){.app-mark{width:44px;height:44px;border-radius:12px}.compact-brand .wordmark-title{font-size:26px}.compact-brand{gap:8px}.contact-link{padding:0 8px;font-size:9px}}

@@ -36,6 +36,10 @@ Game-end checks cover the final capture, blocked opponents, losses without
 celebration, and undo/reset cleanup. Fireworks are finite and disabled when
 reduced motion is requested. Draw adjudication is not implemented.
 
+Completed search workers stay alive between turns; interrupted searches are
+terminated. Automatic search starts after the move animation without an
+additional polling delay. Search time budgets are unchanged.
+
 The UI displays search progress but only draws the final completed result.
 The default fast mode uses a
 1-second search budget; deep mode retains the original 4.5-second budget. The

@@ -26,11 +26,11 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
 .choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
-</style><link rel="stylesheet" href="ui.css?v=13"></head>
+</style><link rel="stylesheet" href="ui.css?v=14"></head>
 <body>
 <header class="compact-header">
- <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar-selected.png" alt="Аватарка бота"><div><h1>OneStep</h1><p>Читы для шашек</p></div></div>
- <a class="contact-link" href="https://t.me/mapkee" aria-label="Написать разработчику в Telegram"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 3.7 18 20c-.3 1.2-1 1.5-2 .9l-5.3-3.9-2.6 2.5c-.3.3-.5.5-1 .5l.4-5.4 9.8-8.8c.4-.4-.1-.6-.6-.3L4.6 13.1l-5.2-1.6c-1.1-.3-1.1-1.1.2-1.6L20 2.2c.9-.3 1.8.2 1.5 1.5Z" transform="translate(1 1) scale(.92)"/></svg><span>Telegram</span></a>
+ <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar-selected.png" alt="Аватарка бота"><div><h1 class="wordmark-title" aria-label="OneStep">One<span>Step</span></h1><p>Читы для шашек</p></div></div>
+ <a class="contact-link" href="https://t.me/shashkamovebot" aria-label="Открыть бота OneStep в Telegram"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 3.7 18 20c-.3 1.2-1 1.5-2 .9l-5.3-3.9-2.6 2.5c-.3.3-.5.5-1 .5l.4-5.4 9.8-8.8c.4-.4-.1-.6-.6-.3L4.6 13.1l-5.2-1.6c-1.1-.3-1.1-1.1.2-1.6L20 2.2c.9-.3 1.8.2 1.5 1.5Z" transform="translate(1 1) scale(.92)"/></svg><span>Telegram</span></a>
 </header>
 <section class="app" id="play" aria-label="Шашечная доска и параметры">
  <div class="board-card"><div class="board-wrap"><div class="board" id="board"></div><svg class="overlay" viewBox="0 0 800 800" preserveAspectRatio="none"><defs><linearGradient id="ag"><stop stop-color="#5476a1"/><stop offset="1" stop-color="#9cb9df"/></linearGradient><marker id="ah" markerUnits="userSpaceOnUse" markerWidth="32" markerHeight="32" refX="8" refY="16" orient="auto"><path d="M2 3 L30 16 L2 29 L8 16 Z" fill="#9cb9df"/></marker></defs><g id="arrows"></g></svg></div></div>
@@ -99,7 +99,7 @@ function animateMove(piece,motion){
   animating=true;
   const animation=piece.animate([{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"translate(0px,0px)"}],{duration:220,easing:"cubic-bezier(.22,.72,.2,1)"});
   moveAnimation=animation;
-  const complete=()=>{if(moveAnimation===animation){moveAnimation=null;animating=false;updatePanel();checkGameEnd();}};
+  const complete=()=>{if(moveAnimation===animation){moveAnimation=null;animating=false;updatePanel();if(!checkGameEnd())autoHint();}};
   animation.onfinish=complete;animation.oncancel=complete;updatePanel();
 }
 function drawArrow(){
@@ -122,7 +122,7 @@ function drawArrow(){
     const text=add("text",{x:pts[i][0],y:pts[i][1]+5,"text-anchor":"middle",fill:"#93c5fd","font-size":15,"font-family":"system-ui","font-weight":700});text.textContent=i;
   }
 }
-function cancelAnalysis(){cancelMoveAnimation();if(worker){worker.terminate();worker=null}thinking=false;requestId++;}
+function cancelAnalysis(){cancelMoveAnimation();if(worker&&thinking){worker.terminate();worker=null}thinking=false;requestId++;}
 function updatePanel(){const [w,b]=count();$("wc").textContent=w;$("bc").textContent=b;$("turnLabel").textContent=turn===myColor?"ТВОЙ ХОД":"ХОД СОПЕРНИКА";$("whiteChoice").classList.toggle("active",myColor===1);$("blackChoice").classList.toggle("active",myColor===-1);$("hintBtn").disabled=gameOver!==null||thinking||animating||turn!==myColor||Boolean(pendingCapture)}
 function closeResult(){const dialog=$("resultDialog");if(dialog.open)dialog.close();dialog.hidden=true;$("fireworks").innerHTML="";$("fireworks").hidden=true;}
 function checkGameEnd(){
@@ -180,7 +180,7 @@ function clickCell(i){
 }
 function analyze(){if(gameOver!==null||turn!==myColor||thinking||animating||pendingCapture)return;if(!worker){try{worker=new Worker("engine-worker.js?v=4")}catch(e){status("Не удалось запустить движок: "+e.message);return}worker.onmessage=e=>{const d=e.data;if(d.requestId!==requestId)return;if(d.partial){$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");status("Проверяю варианты… Глубина "+d.move.depth+".");return;}thinking=false;if(d.error){thinking=false;status("Ошибка движка: "+d.error);render();return}if(!d.move){thinking=false;render();checkGameEnd();return}hint=d.move;$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");render();const route=[d.move.from,...d.move.path].map(coord).join(" → ");status(`Рекомендуемый ход: ${route}. Глубина ${d.move.depth}. Можно ходить.`)};worker.onerror=e=>{thinking=false;status("Ошибка Worker. Проверь, что engine-worker.js загружен рядом с index.html.");}}
 thinking=true;hint=null;selected=null;render();status("Ищу сильное продолжение… Стрелка появится после проверки.");requestId++;worker.postMessage({board:board.slice(),player:turn,budgetMs:analysisBudget,requestId})}
-function autoHint(){if(gameOver===null&&turn===myColor&&!thinking)setTimeout(()=>{if(gameOver===null&&turn===myColor&&!thinking){if(animating)autoHint();else analyze();}},120)}
+function autoHint(){if(gameOver!==null||pendingCapture||animating||turn!==myColor||thinking)return;setTimeout(()=>{if(gameOver===null&&!pendingCapture&&!animating&&turn===myColor&&!thinking)analyze()},0)}
 function setAnalysisMode(budget){
   if(pendingCapture){status("Сначала заверши серию взятий или нажми «Отменить».");return;}
   cancelAnalysis();analysisBudget=budget;

@@ -69,3 +69,15 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 .black{box-shadow:inset 0 1px 2px #c5d9ef55,0 1px 0 #2a405c,0 2px 0 #152a44,0 3px 0 #08172c,0 5px 7px #0007}
 .piece:before,.king:after{transform:none}.cell.from .piece{box-shadow:inset 0 1px 2px #ffffff99,0 2px 0 #627791,0 3px 0 #384e69,0 5px 7px #0006;outline:2px solid #b1cce599;outline-offset:1px}
 @media(max-width:760px){.board-card{padding:8px;border-radius:15px;perspective:none}.board-wrap{transform:none;border-radius:8px}}
+
+/* A cylinder silhouette: a separate elliptical lid over a visible side wall. */
+.piece,.white,.black{background:none;border:0;box-shadow:none;overflow:visible;isolation:isolate}
+.piece:before{content:none}.piece-body,.piece-top{position:absolute;left:0;right:0;pointer-events:none;box-sizing:border-box}
+.piece-body{top:10%;bottom:0;border-radius:50% / 44%;border:1px solid #637b995e;z-index:0;background:linear-gradient(90deg,#263a54,#93abc8 32%,#637d9e 62%,#263d5d);box-shadow:0 3px 2px #0004,0 7px 9px #0007,inset 0 -2px 0 #152c4d88}
+.piece-top{top:0;height:82%;border-radius:50%;border:1px solid #eaf4ffb0;z-index:1;background:radial-gradient(ellipse at 32% 15%,#f2f8ffde,transparent 55%),linear-gradient(145deg,#dce7f3d9,#91aac7e0);box-shadow:inset 0 1px 2px #ffffffb3,inset 0 -2px 2px #58739255,0 1px 0 #465f7d}
+.piece-top:before{content:"";position:absolute;inset:15%;border:1px solid #d8e7f4a1;border-radius:50%;background:linear-gradient(145deg,#d7e8fa14,#3c60851a);box-shadow:inset 0 2px 2px #38547738,0 1px 0 #ffffff6b}
+.black .piece-body{border-color:#45607e7a;background:linear-gradient(90deg,#040e1d,#3a526f 32%,#1a304d 62%,#030d1c);box-shadow:0 3px 2px #0006,0 7px 9px #0008,inset 0 -2px 0 #020a15}
+.black .piece-top{border-color:#a5bfdc70;background:radial-gradient(ellipse at 32% 15%,#a8c1df59,transparent 55%),linear-gradient(145deg,#3a5474,#101f35);box-shadow:inset 0 1px 2px #d4e6ff66,inset 0 -2px 2px #030d1caa,0 1px 0 #051224}
+.black .piece-top:before{border-color:#a3bbd64d;background:linear-gradient(145deg,#d7e8fa08,#0002);box-shadow:inset 0 2px 2px #0004,0 1px 0 #b7d4f329}
+.cell.from .piece{box-shadow:none;outline:none}.cell.from .piece-top{outline:2px solid #bbd9f2a1;outline-offset:1px}
+.king:after{position:absolute;top:0;left:0;width:100%;height:82%;display:flex;align-items:center;justify-content:center;z-index:2;font-size:clamp(16px,2.6vw,25px);transform:none;pointer-events:none;text-shadow:0 2px 1px #152844a1}

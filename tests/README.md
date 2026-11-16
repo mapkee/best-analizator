@@ -29,8 +29,8 @@ blocking repeated clicks during each jump, cancelling on undo/reset, and
 respecting the system's reduced-motion preference. Animation timing and
 appearance still require visual verification in a real browser.
 
-The board uses CSS perspective and separated checker layers. Move animation
-uses local board dimensions and preserves the checker's 12px elevation.
+The board uses a straight top-down view with shallow checker edges and a
+beveled frame. Move animation uses local board dimensions without perspective.
 
 The UI displays search progress but only draws the final completed result.
 The default fast mode uses a

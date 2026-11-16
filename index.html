@@ -26,7 +26,7 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
 .choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
-</style><link rel="stylesheet" href="ui.css?v=9"></head>
+</style><link rel="stylesheet" href="ui.css?v=10"></head>
 <body>
 <header class="compact-header">
  <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar-selected.png" alt="Аватарка бота"><div><h1>На шаг впереди</h1><p>Читы для шашек</p></div></div>
@@ -73,7 +73,7 @@ function render(motion){
     if(selected===i)cell.classList.add("selected");
     if(hint){if(hint.from===i)cell.classList.add("from");if(hint.path.includes(i))cell.classList.add("to")}
     if(legal.includes(i))cell.classList.add("legal");
-    if(board[i]){const pc=document.createElement("div");pc.className="piece "+(board[i]>0?"white":"black")+(isKing(board[i])?" king":"");for(let layer=0;layer<3;layer++){const sideLayer=document.createElement("span");sideLayer.className="piece-layer";pc.appendChild(sideLayer);}cell.appendChild(pc);if(motion&&i===motion.to)movingPiece=pc;}
+    if(board[i]){const pc=document.createElement("div");pc.className="piece "+(board[i]>0?"white":"black")+(isKing(board[i])?" king":"");cell.appendChild(pc);if(motion&&i===motion.to)movingPiece=pc;}
     if(sc===0){const label=document.createElement("span");label.className="square-label rank";label.textContent=8-r;cell.appendChild(label)}
     if(sr===7){const label=document.createElement("span");label.className="square-label file";label.textContent="abcdefgh"[c];cell.appendChild(label)}
     cell.addEventListener("click",()=>clickCell(i));cell.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();clickCell(i)}});root.appendChild(cell);
@@ -90,7 +90,7 @@ function animateMove(piece,motion){
   const size=($("board").offsetWidth||$("board").getBoundingClientRect().width)/8,orientation=myColor===1?1:-1;
   const dx=((motion.from&7)-(motion.to&7))*size*orientation,dy=((motion.from>>3)-(motion.to>>3))*size*orientation;
   animating=true;
-  const animation=piece.animate([{transform:"translate3d("+dx+"px,"+dy+"px,12px)"},{transform:"translate3d(0px,0px,12px)"}],{duration:220,easing:"cubic-bezier(.22,.72,.2,1)"});
+  const animation=piece.animate([{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"translate(0px,0px)"}],{duration:220,easing:"cubic-bezier(.22,.72,.2,1)"});
   moveAnimation=animation;
   const complete=()=>{if(moveAnimation===animation){moveAnimation=null;animating=false;updatePanel();}};
   animation.onfinish=complete;animation.oncancel=complete;updatePanel();

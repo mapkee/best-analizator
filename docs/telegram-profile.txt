@@ -2,7 +2,7 @@
 Бот: @shashkamovebot
 
 ИМЯ БОТА
-OneStep | Шашки
+OneStep
 
 КОРОТКОЕ ОПИСАНИЕ (/setabouttext)
 Будь на ход дальше. Читы для русских шашек и подсказки ходов прямо в Telegram.
@@ -22,11 +22,11 @@ OneStep | Шашки
 docs/bot-avatar-selected.png
 
 ОСНОВНАЯ КНОПКА
-Открыть приложение — встроенная кнопка Main Mini App в профиле Telegram.
+Открыть OneStep — встроенная кнопка Main Mini App в профиле Telegram.
 Адрес приложения: https://mapkee.github.io/onestep/
 
 КНОПКА МЕНЮ (/setmenubutton)
-Текст: Читы для шашек
+Текст: OneStep
 Адрес: https://mapkee.github.io/onestep/
 
 ПРИВЕТСТВИЕ ДЛЯ БУДУЩЕГО ОБРАБОТЧИКА /start
@@ -37,10 +37,10 @@ docs/bot-avatar-selected.png
 Открой приложение, чтобы начать.
 
 КНОПКИ В СООБЩЕНИИ /start
-Открыть приложение — web_app с адресом приложения.
-Как пользоваться — инструкция в сообщении бота.
+Открыть OneStep — web_app с адресом приложения.
+Инструкция — инструкция в сообщении бота.
 Написать разработчику — https://t.me/mapkee
-GitHub — https://github.com/mapkee/onestep
+OneStep на GitHub — https://github.com/mapkee/onestep
 
 Важно: приветствие и ответы на дополнительные кнопки требуют обработчика
 сообщений бота. Обработчик подготовлен в bot/worker.mjs для Cloudflare Workers.

@@ -3,10 +3,10 @@ const DEVELOPER_URL = 'https://t.me/mapkee';
 export const HELP_TEXT = 'Как пользоваться\n\n1. Открой приложение и выбери свою сторону.\n2. Записывай ходы: нажми на шашку, затем на клетку назначения.\n3. После хода соперника подсказка появится автоматически.\n4. Синяя стрелка показывает маршрут хода. Стрелка появляется один раз, после завершения поиска. В серии взятий нажимай каждую клетку приземления по очереди.\n5. Быстрый режим — около секунды, глубокий — около 4,5 секунды.\n\nПозицию нужно переносить вручную. Для исправления хода есть «Отменить».';
 export function keyboard() {
   return {inline_keyboard:[
-    [{text:'Открыть приложение',web_app:{url:APP_URL}}],
-    [{text:'Как пользоваться',callback_data:'help'}],
+    [{text:'Открыть OneStep',web_app:{url:APP_URL}}],
+    [{text:'Инструкция',callback_data:'help'}],
     [{text:'Написать разработчику',url:DEVELOPER_URL}],
-    [{text:'GitHub',url:'https://github.com/mapkee/onestep'}]
+    [{text:'OneStep на GitHub',url:'https://github.com/mapkee/onestep'}]
   ]};
 }
 class TelegramError extends Error {
@@ -71,10 +71,13 @@ export async function handleRequest(request,env,fetcher=fetch) {
       const current=await api(env,'getWebhookInfo',{},fetcher);
       const target=url.origin+'/webhook';
       if(current.url&&current.url!==target)return page('<p>У бота уже есть другой webhook. Он не изменён. Сначала проверь существующий обработчик.</p>',409);
-      await api(env,'setMyCommands',{commands:[{command:'start',description:'Открыть меню'},{command:'help',description:'Как пользоваться'}]},fetcher);
-      await api(env,'setChatMenuButton',{menu_button:{type:'web_app',text:'Читы для шашек',web_app:{url:APP_URL}}},fetcher);
+      await api(env,'setMyName',{name:'OneStep'},fetcher);
+      await api(env,'setMyShortDescription',{short_description:'OneStep — читы для русских шашек. Будь на ход дальше.'},fetcher);
+      await api(env,'setMyDescription',{description:'OneStep — будь на ход дальше.\n\nЗаписывай ходы на доску и находи сильные продолжения в русских шашках. Два режима поиска, пошаговые взятия, объёмные шашки и салют при победе.\n\nНажми «Открыть OneStep», чтобы начать.'},fetcher);
+      await api(env,'setMyCommands',{commands:[{command:'start',description:'Меню OneStep'},{command:'help',description:'Инструкция'}]},fetcher);
+      await api(env,'setChatMenuButton',{menu_button:{type:'web_app',text:'OneStep',web_app:{url:APP_URL}}},fetcher);
       await api(env,'setWebhook',{url:target,secret_token:env.WEBHOOK_SECRET,allowed_updates:['message','callback_query']},fetcher);
-      return page('<h1>Бот подключён</h1><p>Открой @shashkamovebot и отправь /start. В ответ появятся четыре кнопки.</p>');
+      return page('<h1>Бот подключён</h1><p>Имя, описание и меню обновлены под OneStep. Открой @shashkamovebot и отправь /start — появятся четыре обновлённые кнопки.</p>');
     }catch(error){
       const detail=error instanceof TelegramError?error.message:'Не удалось завершить настройку.';
       return page(`<h1>Настройка остановлена</h1><p>${escapeHtml(detail)}</p><p>Можно прислать текст этой ошибки разработчику. Токен и секрет в ответе скрыты.</p><a href="/setup">Повторить настройку</a>`,502);

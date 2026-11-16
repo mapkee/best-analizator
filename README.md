@@ -1,8 +1,10 @@
 <div align="center">
 
-<img src="docs/bot-avatar-selected.png" alt="OneStep" width="108" height="108">
-
-<h1><img src="docs/wordmark.svg" alt="OneStep" width="320"></h1>
+<p>
+<img src="docs/bot-avatar-selected.png" alt="Логотип OneStep" width="80" height="80" align="middle">
+&nbsp;&nbsp;
+<img src="docs/wordmark.svg" alt="OneStep" width="280" height="80" align="middle">
+</p>
 
 ### Будь на ход дальше.
 

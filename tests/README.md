@@ -40,6 +40,20 @@ Completed search workers stay alive between turns; interrupted searches are
 terminated. Automatic search starts after the move animation without an
 additional polling delay. Search time budgets are unchanged.
 
+## Tactical strength smoke test
+
+Run `node tests/tactics.cjs`. The frozen `tactics.json` contains 12 synthetic
+four-piece forced wins plus their rotated, color-swapped versions (24 checks).
+Each has winning and non-winning choices at depth 5. An exhaustive minimax
+oracle re-proves the winning choices using only terminal outcomes, no static
+evaluation, alpha-beta, TT or quiescence. It shares the move generator with the
+engine, so this is not an independent validation of official rules. It is not
+an Elo estimate or a broad playing-strength benchmark. Current result: 24/24.
+
+Fixtures are intentionally fixed for future comparisons. `--generate` rebuilds
+them deterministically and should only be used when deliberately revising the
+suite; ordinary checks must use the committed fixtures.
+
 The UI displays search progress but only draws the final completed result.
 The default fast mode uses a
 1-second search budget; deep mode retains the original 4.5-second budget. The

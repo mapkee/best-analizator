@@ -26,7 +26,7 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
 .choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
-</style><link rel="stylesheet" href="ui.css?v=14"></head>
+</style><link rel="stylesheet" href="ui.css?v=15"></head>
 <body>
 <header class="compact-header">
  <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar-selected.png" alt="Аватарка бота"><div><h1 class="wordmark-title" aria-label="OneStep">One<span>Step</span></h1><p>Читы для шашек</p></div></div>
@@ -65,7 +65,20 @@ function captureMoves(b,player){const out=[];for(let start=0;start<64;start++)if
 function quietMoves(b,player){const out=[];for(let i=0;i<64;i++)if(sgn(b[i])===player){const [r,c]=rc(i),p=b[i];if(isKing(p)){for(const [dr,dc] of dirs){let rr=r+dr,cc=c+dc;while(inside(rr,cc)&&b[idx(rr,cc)]===0){const to=idx(rr,cc),nb=b.slice();nb[to]=p;nb[i]=0;out.push({from:i,to,path:[to],captures:[],board:nb});rr+=dr;cc+=dc}}}else{const dr=player===1?-1:1;for(const dc of [-1,1]){const rr=r+dr,cc=c+dc;if(inside(rr,cc)&&b[idx(rr,cc)]===0){const to=idx(rr,cc),nb=b.slice();nb[to]=p;nb[i]=0;if((player===1&&rr===0)||(player===-1&&rr===7))nb[to]=player*2;out.push({from:i,to,path:[to],captures:[],board:nb})}}}}return out}
 function moves(b,p){const c=captureMoves(b,p);return c.length?c:quietMoves(b,p)}
 function save(){history.push({board:board.slice(),turn});if(history.length>100)history.shift()}
-function status(t){$("status").textContent=t;$("status").classList.toggle("analyzing",thinking)}
+function status(t){
+  const box=$("status");box.innerHTML="";box.classList.toggle("analyzing",thinking);
+  const title=document.createElement("div");title.className="hint-heading";title.textContent=thinking?"Ищем продолжение":"Подсказка";
+  const body=document.createElement("p");body.className="hint-message";body.textContent=t;
+  box.appendChild(title);box.appendChild(body);
+}
+function showHint(move){
+  const box=$("status");box.innerHTML="";box.classList.toggle("analyzing",false);
+  const title=document.createElement("div");title.className="hint-heading ready";title.textContent="Ход найден";box.appendChild(title);
+  const route=document.createElement("div");route.className="hint-route";route.setAttribute("aria-label",[move.from,...move.path].map(coord).join(", "));
+  [move.from,...move.path].forEach((square,n)=>{if(n){const line=document.createElement("span");line.className="route-divider";line.setAttribute("aria-hidden","true");route.appendChild(line)}const chip=document.createElement("span");chip.className="route-square";chip.textContent=coord(square);route.appendChild(chip)});
+  box.appendChild(route);
+  const meta=document.createElement("p");meta.className="hint-message";meta.textContent=move.captures.length?"Взятие: "+move.captures.length:"Можно ходить";box.appendChild(meta);
+}
 function nextDestinations(){
   if(pendingCapture)return pendingCapture.candidates.map(m=>m.path[pendingCapture.step]);
   return selected===null?[]:moves(board,turn).filter(m=>m.from===selected).map(m=>m.path[0]);
@@ -175,11 +188,11 @@ function clickCell(i){
       return;
     }
   }
-  if(sgn(board[i])===turn){cancelAnalysis();selected=i;hint=null;render();status("Выбери подсвеченную клетку. В серии взятий нажимай каждое приземление по очереди.")}
+  if(sgn(board[i])===turn){cancelAnalysis();selected=i;hint=null;render();status("Нажми на подсвеченную клетку.")}
   else{selected=null;render()}
 }
-function analyze(){if(gameOver!==null||turn!==myColor||thinking||animating||pendingCapture)return;if(!worker){try{worker=new Worker("engine-worker.js?v=4")}catch(e){status("Не удалось запустить движок: "+e.message);return}worker.onmessage=e=>{const d=e.data;if(d.requestId!==requestId)return;if(d.partial){$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");status("Проверяю варианты… Глубина "+d.move.depth+".");return;}thinking=false;if(d.error){thinking=false;status("Ошибка движка: "+d.error);render();return}if(!d.move){thinking=false;render();checkGameEnd();return}hint=d.move;$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");render();const route=[d.move.from,...d.move.path].map(coord).join(" → ");status(`Рекомендуемый ход: ${route}. Глубина ${d.move.depth}. Можно ходить.`)};worker.onerror=e=>{thinking=false;status("Ошибка Worker. Проверь, что engine-worker.js загружен рядом с index.html.");}}
-thinking=true;hint=null;selected=null;render();status("Ищу сильное продолжение… Стрелка появится после проверки.");requestId++;worker.postMessage({board:board.slice(),player:turn,budgetMs:analysisBudget,requestId})}
+function analyze(){if(gameOver!==null||turn!==myColor||thinking||animating||pendingCapture)return;if(!worker){try{worker=new Worker("engine-worker.js?v=4")}catch(e){status("Не удалось запустить движок: "+e.message);return}worker.onmessage=e=>{const d=e.data;if(d.requestId!==requestId)return;if(d.partial){$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");status("Проверяю варианты… Глубина "+d.move.depth+".");return;}thinking=false;if(d.error){thinking=false;status("Ошибка движка: "+d.error);render();return}if(!d.move){thinking=false;render();checkGameEnd();return}hint=d.move;$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");render();showHint(d.move)};worker.onerror=e=>{thinking=false;status("Ошибка Worker. Проверь, что engine-worker.js загружен рядом с index.html.");}}
+thinking=true;hint=null;selected=null;render();status("Проверяем варианты. Обычно около секунды.");requestId++;worker.postMessage({board:board.slice(),player:turn,budgetMs:analysisBudget,requestId})}
 function autoHint(){if(gameOver!==null||pendingCapture||animating||turn!==myColor||thinking)return;setTimeout(()=>{if(gameOver===null&&!pendingCapture&&!animating&&turn===myColor&&!thinking)analyze()},0)}
 function setAnalysisMode(budget){
   if(pendingCapture){status("Сначала заверши серию взятий или нажми «Отменить».");return;}
@@ -192,5 +205,5 @@ function setColor(c){if(pendingCapture){status("Сначала заверши с
 $("whiteChoice").onclick=()=>setColor(1);$("blackChoice").onclick=()=>setColor(-1);$("hintBtn").onclick=analyze;
 $("undoBtn").onclick=()=>{cancelAnalysis();if(!history.length){status("Пока нечего отменять.");return}const s=history.pop();closeResult();gameOver=null;pendingCapture=null;board=s.board;turn=s.turn;hint=null;selected=null;render();status(turn===myColor?"Твой ход.":"Ход соперника.")};
 $("newBtn").onclick=()=>{cancelAnalysis();closeResult();gameOver=null;pendingCapture=null;board=startBoard();turn=1;history=[];hint=null;selected=null;$("depth").textContent="—";$("nodes").textContent="—";render();if(turn===myColor)autoHint();else status("Новая партия. Ожидаю ход соперника.")};
-board=startBoard();render();status("Выбери сторону и запиши ход на доске.");
+board=startBoard();render();status("Выбери сторону. Затем запиши ход на доске.");
 </script></body></html>

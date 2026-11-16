@@ -24,6 +24,11 @@ orientations. This uses a minimal
 DOM harness, not a browser rendering test. The worker also runs a real 500 ms
 search and reports first-hint latency and final response time.
 
+Movement tests check 220 ms translation geometry in both orientations,
+blocking repeated clicks during each jump, cancelling on undo/reset, and
+respecting the system's reduced-motion preference. Animation timing and
+appearance still require visual verification in a real browser.
+
 The UI displays search progress but only draws the final completed result.
 The default fast mode uses a
 1-second search budget; deep mode retains the original 4.5-second budget. The

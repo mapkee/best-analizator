@@ -1,0 +1,34 @@
+/* Shared visual polish. Kept separate from the game logic. */
+:root{--txt:#edf4ff;--muted:#8096b5}
+body{background:radial-gradient(ellipse at 50% 0,#122d50 0,transparent 48%),#070c16;padding-top:calc(26px + env(safe-area-inset-top))}
+.brand{width:min(100%,960px);display:flex;align-items:center;gap:16px;text-align:left;margin-bottom:24px}
+.brand-avatar{width:68px;height:68px;border-radius:21px;border:1px solid #40608560;box-shadow:0 8px 30px #0004}
+.logo{font-size:clamp(25px,4.5vw,36px);font-weight:850;letter-spacing:-1px;background:linear-gradient(100deg,#f0f7ff,#a9ccff);background-clip:text;-webkit-background-clip:text;margin:4px 0}
+.tag{font-size:10px;letter-spacing:2.8px;color:#79aeed;font-weight:750;margin:0}
+.brand-caption{margin:0;font-size:12px;color:#8ba1bf}
+.board-card,.panel{border:1px solid #29415e99;border-radius:22px;background:linear-gradient(145deg,#132237,#0d1727);box-shadow:0 22px 60px #0004}
+.board-card{padding:13px}
+.board-heading{display:flex;justify-content:space-between;align-items:center;padding:1px 3px 13px;font-size:12px;font-weight:700;color:#9fb4d0}
+.board-badge{font-size:10px;letter-spacing:1px;border:1px solid #34516d80;border-radius:6px;padding:4px 7px;color:#6e9ed5}
+.board-wrap{border-radius:12px;box-shadow:0 0 0 1px #96b8e212;isolation:isolate}
+.light{background:#cfdae6}.dark,.cell.from{background:linear-gradient(140deg,#435d79,#344b65)}
+.cell.selected{background:linear-gradient(135deg,#3467a0,#28527e)}
+.piece{width:77%;height:77%;box-shadow:0 5px 7px #0007,inset 0 2px 3px #ffffff55;border-width:1.5px}
+.white{background:radial-gradient(circle at 33% 24%,#fff,#e4edf7 45%,#a9bbce 90%);border-color:#f5f9ff}
+.black{background:radial-gradient(circle at 33% 24%,#526b88,#1d2d43 60%,#0b1423);border-color:#0c1726}
+.square-label{position:absolute;font-size:clamp(8px,1.4vw,11px);font-weight:650;line-height:1;pointer-events:none;color:#b5c9df99;z-index:3}
+.light .square-label{color:#4b648299}.square-label.rank{top:5px;left:4px}.square-label.file{bottom:4px;right:5px}
+.cell:focus-visible{outline:2px solid #93c5fd;outline-offset:-3px;z-index:4}
+.panel{padding:20px;gap:13px}.pt{font-size:10px;letter-spacing:2px;color:#7f9abf}
+.choice,.btn{min-height:46px;border-color:#2c425d;background:#132338;border-radius:12px;transition:background .15s,border-color .15s}
+.choice:hover,.btn:not(:disabled):hover{border-color:#5b88bb;background:#1b3350}
+.choice.active{background:#1d416c;border-color:#4c97ed;box-shadow:inset 0 0 0 1px #73b3ff18}
+.btn.primary{background:linear-gradient(115deg,#187bd2,#315cda);border-color:#559ce9;box-shadow:0 5px 20px #1452a025}
+.btn.primary:not(:disabled):hover{background:linear-gradient(115deg,#248ce5,#426eec)}
+.turn{font-size:10px;letter-spacing:.7px;padding:7px 11px;background:#142940;color:#9ec5f4;border-color:#315175;align-self:flex-start}
+.status{border-radius:14px;border-color:#2a4565;background:#0a1627;color:#d1e5ff;min-height:76px;font-size:13px;padding:14px;line-height:1.65}
+.status.analyzing{background:#112641;border-color:#3b6d9f}
+.stats{background:#0a1525;border:1px solid #253d5866;border-radius:14px;padding:14px;gap:10px;font-size:12px}
+.stats b{font-variant-numeric:tabular-nums;color:#c5dfff}.tip{font-size:11px;color:#7991b0;line-height:1.6}
+@media(max-width:760px){body{padding-top:calc(16px + env(safe-area-inset-top))}.brand{max-width:560px;gap:12px;margin-bottom:17px;padding:0 5px}.brand-avatar{width:54px;height:54px;border-radius:17px}.logo{font-size:28px}.tag{font-size:9px}.app{gap:13px}.board-card{padding:9px;border-radius:18px}.board-heading{padding-bottom:9px}.panel{padding:16px;border-radius:18px;gap:12px}.square-label{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.choice,.btn{transition:none}}

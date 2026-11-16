@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080e1b"><meta name="mobile-web-app-capable" content="yes">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<title>На шаг впереди — анализатор шашек</title>
+<title>На шаг впереди — читы для шашек</title>
 <style>
 :root{color-scheme:dark;--bg:#070d18;--panel:#101d30;--line:#294463;--blue:#38bdf8;--cyan:#67e8f9;--txt:#eff7ff;--muted:#91a6c2}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;min-height:100dvh;padding:calc(14px + env(safe-area-inset-top)) 12px calc(22px + env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% -10%,#17365d,#091426 48%,#050a12);color:var(--txt);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;display:flex;align-items:center;flex-direction:column}
@@ -25,11 +25,11 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
 .choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
-</style></head>
+</style><link rel="stylesheet" href="ui.css?v=1"></head>
 <body>
-<header><h1 class="logo">На шаг впереди</h1><div class="tag">ШАШКИ · АНАЛИЗ ПОЗИЦИЙ</div></header>
+<header class="brand"><img class="brand-avatar" src="docs/bot-avatar.png" alt=""><div><div class="tag">ЧИТЫ ДЛЯ ШАШЕК</div><h1 class="logo">На шаг впереди</h1><p class="brand-caption">Будь на ход дальше.</p></div></header>
 <section class="app">
- <div class="board-card"><div class="board-wrap"><div class="board" id="board"></div><svg class="overlay" viewBox="0 0 800 800" preserveAspectRatio="none"><defs><linearGradient id="ag"><stop stop-color="#3b82f6"/><stop offset="1" stop-color="#60a5fa"/></linearGradient><marker id="ah" markerUnits="userSpaceOnUse" markerWidth="32" markerHeight="32" refX="8" refY="16" orient="auto"><path d="M2 3 L30 16 L2 29 L8 16 Z" fill="#60a5fa"/></marker></defs><g id="arrows"></g></svg></div></div>
+ <div class="board-card"><div class="board-heading"><span>Игровая доска</span><span class="board-badge">8 × 8</span></div><div class="board-wrap"><div class="board" id="board"></div><svg class="overlay" viewBox="0 0 800 800" preserveAspectRatio="none"><defs><linearGradient id="ag"><stop stop-color="#3b82f6"/><stop offset="1" stop-color="#60a5fa"/></linearGradient><marker id="ah" markerUnits="userSpaceOnUse" markerWidth="32" markerHeight="32" refX="8" refY="16" orient="auto"><path d="M2 3 L30 16 L2 29 L8 16 Z" fill="#60a5fa"/></marker></defs><g id="arrows"></g></svg></div></div>
  <aside class="panel">
   <div class="pt">ВЫБЕРИ СВОЮ СТОРОНУ</div><div class="choices"><button class="choice active" id="whiteChoice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#edf5ff" stroke="#b6c8df"/><path d="M8 15a5 5 0 0 0 8 0" stroke="#8fa4be"/></svg>Белыми</button><button class="choice" id="blackChoice"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#182638" stroke="#8fa4be"/><path d="M8 9a5 5 0 0 1 8 0" stroke="#647c99"/></svg>Чёрными</button></div>
   <div class="turn" id="turnLabel">Ход белых</div><div class="status" id="status">Выбери цвет. Переноси ходы соперника на доску — ответ будет найден автоматически.</div>
@@ -46,7 +46,7 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 (()=>{const tg=window.Telegram?.WebApp;if(tg){try{tg.ready();tg.expand();tg.setHeaderColor?.("#080e1b");tg.setBackgroundColor?.("#080e1b");tg.disableVerticalSwipes?.()}catch(e){}}})();
 "use strict";
 const $=id=>document.getElementById(id), dirs=[[-1,-1],[-1,1],[1,-1],[1,1]], idx=(r,c)=>r*8+c, rc=i=>[i>>3,i&7], inside=(r,c)=>r>=0&&r<8&&c>=0&&c<8, sgn=Math.sign, isKing=p=>Math.abs(p)===2;
-let board,turn=1,myColor=1,selected=null,hint=null,history=[],worker=null,thinking=false,requestId=0,analysisBudget=1000;
+let board,turn=1,myColor=1,selected=null,hint=null,history=[],worker=null,thinking=false,requestId=0,analysisBudget=1000,pendingCapture=null;
 function startBoard(){const b=Array(64).fill(0);for(let r=0;r<3;r++)for(let c=0;c<8;c++)if((r+c)&1)b[idx(r,c)]=-1;for(let r=5;r<8;r++)for(let c=0;c<8;c++)if((r+c)&1)b[idx(r,c)]=1;return b}
 function coord(i){const [r,c]=rc(i);return "abcdefgh"[c]+(8-r)}
 function count(){let w=0,k=0;for(const p of board){if(p>0)w++;if(p<0)k++}return [w,k]}
@@ -55,7 +55,26 @@ function quietMoves(b,player){const out=[];for(let i=0;i<64;i++)if(sgn(b[i])===p
 function moves(b,p){const c=captureMoves(b,p);return c.length?c:quietMoves(b,p)}
 function save(){history.push({board:board.slice(),turn});if(history.length>100)history.shift()}
 function status(t){$("status").textContent=t;$("status").classList.toggle("analyzing",thinking)}
-function render(){const root=$("board");root.innerHTML="";const legal=selected===null?[]:moves(board,turn).filter(m=>m.from===selected);for(let sr=0;sr<8;sr++)for(let sc=0;sc<8;sc++){const r=myColor===1?sr:7-sr,c=myColor===1?sc:7-sc,i=idx(r,c),cell=document.createElement("div");cell.className="cell "+(((r+c)&1)?"dark":"light");if(selected===i)cell.classList.add("selected");if(hint){if(hint.from===i)cell.classList.add("from");if(hint.path.includes(i))cell.classList.add("to")}if(legal.some(m=>m.to===i))cell.classList.add("legal");if(board[i]){const pc=document.createElement("div");pc.className="piece "+(board[i]>0?"white":"black")+(isKing(board[i])?" king":"");cell.appendChild(pc)}cell.addEventListener("click",()=>clickCell(i));root.appendChild(cell)}drawArrow();updatePanel()}
+function nextDestinations(){
+  if(pendingCapture)return pendingCapture.candidates.map(m=>m.path[pendingCapture.step]);
+  return selected===null?[]:moves(board,turn).filter(m=>m.from===selected).map(m=>m.path[0]);
+}
+function render(){
+  const root=$("board");root.innerHTML="";const legal=nextDestinations();
+  for(let sr=0;sr<8;sr++)for(let sc=0;sc<8;sc++){
+    const r=myColor===1?sr:7-sr,c=myColor===1?sc:7-sc,i=idx(r,c),cell=document.createElement("div");
+    cell.className="cell "+(((r+c)&1)?"dark":"light");
+    cell.setAttribute("role","button");cell.setAttribute("tabindex","0");cell.setAttribute("aria-label",coord(i));
+    if(selected===i)cell.classList.add("selected");
+    if(hint){if(hint.from===i)cell.classList.add("from");if(hint.path.includes(i))cell.classList.add("to")}
+    if(legal.includes(i))cell.classList.add("legal");
+    if(board[i]){const pc=document.createElement("div");pc.className="piece "+(board[i]>0?"white":"black")+(isKing(board[i])?" king":"");cell.appendChild(pc)}
+    if(sc===0){const label=document.createElement("span");label.className="square-label rank";label.textContent=8-r;cell.appendChild(label)}
+    if(sr===7){const label=document.createElement("span");label.className="square-label file";label.textContent="abcdefgh"[c];cell.appendChild(label)}
+    cell.addEventListener("click",()=>clickCell(i));cell.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();clickCell(i)}});root.appendChild(cell);
+  }
+  drawArrow();updatePanel();
+}
 function drawArrow(){
   const g=$("arrows");g.innerHTML="";if(!hint)return;
   const pts=[hint.from,...hint.path].map(i=>{let [r,c]=rc(i);if(myColor===-1){r=7-r;c=7-c}return [(c+.5)*100,(r+.5)*100]});
@@ -77,20 +96,51 @@ function drawArrow(){
   }
 }
 function cancelAnalysis(){if(worker){worker.terminate();worker=null}thinking=false;requestId++;}
-function updatePanel(){const [w,b]=count();$("wc").textContent=w;$("bc").textContent=b;$("mySide").textContent=myColor===1?"Белые":"Чёрные";$("whose").textContent=turn===1?"Белые":"Чёрные";$("turnLabel").textContent=turn===myColor?"ТВОЙ ХОД":"ХОД СОПЕРНИКА";$("whiteChoice").classList.toggle("active",myColor===1);$("blackChoice").classList.toggle("active",myColor===-1);$("hintBtn").disabled=thinking||turn!==myColor}
-function clickCell(i){if((thinking&&!hint)||(rc(i)[0]+rc(i)[1])%2===0)return;if(selected!==null){const candidate=moves(board,turn).find(m=>m.from===selected&&m.to===i);if(candidate){cancelAnalysis();save();board=candidate.board;turn=-turn;selected=null;hint=null;render();if(turn===myColor)autoHint();else status("Ход записан. Ожидаю ход соперника.");return}}if(sgn(board[i])===turn){cancelAnalysis();selected=i;hint=null;render();status("Шашка выбрана. Нажми на подсвеченную клетку назначения.")}else{selected=null;render()}}
-function analyze(){if(turn!==myColor||thinking)return;if(!worker){try{worker=new Worker("engine-worker.js?v=4")}catch(e){status("Не удалось запустить движок: "+e.message);return}worker.onmessage=e=>{const d=e.data;if(d.requestId!==requestId)return;thinking=Boolean(d.partial);if(d.error){thinking=false;status("Ошибка движка: "+d.error);render();return}if(!d.move){thinking=false;render();status("У тебя нет допустимых ходов. Партия окончена.");return}hint=d.move;$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");render();const route=[d.move.from,...d.move.path].map(coord).join(" → ");status(d.partial?`Подсказка: ${route}. Глубина ${d.move.depth} — уточняю. Можно уже сделать ход.`:`Лучший найденный ход: ${route}. Глубина ${d.move.depth}. Анализ завершён.`)};worker.onerror=e=>{thinking=false;status("Ошибка Worker. Проверь, что engine-worker.js загружен рядом с index.html.");}}
-thinking=true;hint=null;selected=null;updatePanel();status("Ищу ход — подсказка появится по мере анализа…");requestId++;worker.postMessage({board:board.slice(),player:turn,budgetMs:analysisBudget,requestId})}
+function updatePanel(){const [w,b]=count();$("wc").textContent=w;$("bc").textContent=b;$("mySide").textContent=myColor===1?"Белые":"Чёрные";$("whose").textContent=turn===1?"Белые":"Чёрные";$("turnLabel").textContent=turn===myColor?"ТВОЙ ХОД":"ХОД СОПЕРНИКА";$("whiteChoice").classList.toggle("active",myColor===1);$("blackChoice").classList.toggle("active",myColor===-1);$("hintBtn").disabled=thinking||turn!==myColor||Boolean(pendingCapture)}
+function finishMove(){
+  pendingCapture=null;turn=-turn;selected=null;hint=null;render();
+  if(turn===myColor)autoHint();else status("Ход записан. Ожидаю ход соперника.");
+}
+function advanceCapture(to){
+  const sequence=pendingCapture,step=sequence.step;
+  const candidates=sequence.candidates.filter(m=>m.path[step]===to);
+  if(!candidates.length){status("Продолжи взятие: нажми на подсвеченную клетку.");return;}
+  const move=candidates[0],piece=board[selected],row=to>>3;
+  board=board.slice();board[selected]=0;board[move.captures[step]]=0;
+  board[to]=!isKing(piece)&&((turn===1&&row===0)||(turn===-1&&row===7))?turn*2:piece;
+  sequence.candidates=candidates;sequence.step++;selected=to;
+  const completed=candidates.find(m=>m.path.length===sequence.step);
+  if(completed){board=completed.board.slice();finishMove();return;}
+  render();status("Взято: "+sequence.step+". Продолжи этой шашкой — выбери следующую подсвеченную клетку.");
+}
+function clickCell(i){
+  if(thinking||(rc(i)[0]+rc(i)[1])%2===0)return;
+  if(pendingCapture){advanceCapture(i);return;}
+  if(selected!==null){
+    const candidates=moves(board,turn).filter(m=>m.from===selected&&m.path[0]===i);
+    if(candidates.length){
+      cancelAnalysis();save();hint=null;
+      if(candidates[0].captures.length){pendingCapture={candidates,step:0};advanceCapture(i)}
+      else{board=candidates[0].board.slice();finishMove()}
+      return;
+    }
+  }
+  if(sgn(board[i])===turn){cancelAnalysis();selected=i;hint=null;render();status("Выбери подсвеченную клетку. В серии взятий нажимай каждое приземление по очереди.")}
+  else{selected=null;render()}
+}
+function analyze(){if(turn!==myColor||thinking||pendingCapture)return;if(!worker){try{worker=new Worker("engine-worker.js?v=4")}catch(e){status("Не удалось запустить движок: "+e.message);return}worker.onmessage=e=>{const d=e.data;if(d.requestId!==requestId)return;if(d.partial){$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");status("Проверяю варианты… Глубина "+d.move.depth+".");return;}thinking=false;if(d.error){thinking=false;status("Ошибка движка: "+d.error);render();return}if(!d.move){thinking=false;render();status("У тебя нет допустимых ходов. Партия окончена.");return}hint=d.move;$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");render();const route=[d.move.from,...d.move.path].map(coord).join(" → ");status(`Рекомендуемый ход: ${route}. Глубина ${d.move.depth}. Можно ходить.`)};worker.onerror=e=>{thinking=false;status("Ошибка Worker. Проверь, что engine-worker.js загружен рядом с index.html.");}}
+thinking=true;hint=null;selected=null;render();status("Ищу сильное продолжение… Стрелка появится после проверки.");requestId++;worker.postMessage({board:board.slice(),player:turn,budgetMs:analysisBudget,requestId})}
 function autoHint(){if(turn===myColor&&!thinking)setTimeout(()=>{if(turn===myColor&&!thinking)analyze()},120)}
 function setAnalysisMode(budget){
+  if(pendingCapture){status("Сначала заверши серию взятий или нажми «Отменить».");return;}
   cancelAnalysis();analysisBudget=budget;
   for(const [id,active] of [["fastMode",budget===1000],["deepMode",budget===4500]]){$(id).classList.toggle("active",active);$(id).setAttribute("aria-pressed",String(active));}
   if(turn===myColor)analyze();else status("Режим анализа изменён. Ожидаю ход соперника.");
 }
 $("fastMode").onclick=()=>setAnalysisMode(1000);$("deepMode").onclick=()=>setAnalysisMode(4500);
-function setColor(c){cancelAnalysis();myColor=c;selected=null;hint=null;render();if(turn===myColor)autoHint();else status("Ожидаю ход соперника. После его хода подсказка появится автоматически.")}
+function setColor(c){if(pendingCapture){status("Сначала заверши серию взятий или нажми «Отменить».");return;}cancelAnalysis();myColor=c;selected=null;hint=null;render();if(turn===myColor)autoHint();else status("Ожидаю ход соперника. После его хода подсказка появится автоматически.")}
 $("whiteChoice").onclick=()=>setColor(1);$("blackChoice").onclick=()=>setColor(-1);$("hintBtn").onclick=analyze;
-$("undoBtn").onclick=()=>{cancelAnalysis();if(!history.length){status("Пока нечего отменять.");return}const s=history.pop();board=s.board;turn=s.turn;hint=null;selected=null;render();status(turn===myColor?"Твой ход.":"Ход соперника.")};
-$("newBtn").onclick=()=>{cancelAnalysis();board=startBoard();turn=1;history=[];hint=null;selected=null;$("depth").textContent="—";$("nodes").textContent="—";render();if(turn===myColor)autoHint();else status("Новая партия. Ожидаю ход соперника.")};
+$("undoBtn").onclick=()=>{cancelAnalysis();if(!history.length){status("Пока нечего отменять.");return}const s=history.pop();pendingCapture=null;board=s.board;turn=s.turn;hint=null;selected=null;render();status(turn===myColor?"Твой ход.":"Ход соперника.")};
+$("newBtn").onclick=()=>{cancelAnalysis();pendingCapture=null;board=startBoard();turn=1;history=[];hint=null;selected=null;$("depth").textContent="—";$("nodes").textContent="—";render();if(turn===myColor)autoHint();else status("Новая партия. Ожидаю ход соперника.")};
 board=startBoard();render();status("Выбери цвет. После каждого хода соперника движок автоматически найдёт ответ.");
 </script></body></html>

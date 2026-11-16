@@ -1,6 +1,6 @@
 const APP_URL = 'https://mapkee.github.io/one-step-ahead/';
 const DEVELOPER_URL = 'https://t.me/mapkee';
-export const HELP_TEXT = 'Как пользоваться\n\n1. Открой анализатор и выбери свою сторону.\n2. Записывай ходы: нажми на шашку, затем на клетку назначения.\n3. После хода соперника подсказка появится автоматически.\n4. Синяя стрелка показывает маршрут хода. Подсказка уточняется во время поиска.\n5. Быстрый режим — около секунды, глубокий — около 4,5 секунды.\n\nПозицию нужно переносить вручную. Для исправления хода есть «Отменить».';
+export const HELP_TEXT = 'Как пользоваться\n\n1. Открой приложение и выбери свою сторону.\n2. Записывай ходы: нажми на шашку, затем на клетку назначения.\n3. После хода соперника подсказка появится автоматически.\n4. Синяя стрелка показывает маршрут хода. Стрелка появляется один раз, после завершения поиска. В серии взятий нажимай каждую клетку приземления по очереди.\n5. Быстрый режим — около секунды, глубокий — около 4,5 секунды.\n\nПозицию нужно переносить вручную. Для исправления хода есть «Отменить».';
 export function keyboard() {
   return {inline_keyboard:[
     [{text:'Открыть приложение',web_app:{url:APP_URL}}],
@@ -72,7 +72,7 @@ export async function handleRequest(request,env,fetcher=fetch) {
       const target=url.origin+'/webhook';
       if(current.url&&current.url!==target)return page('<p>У бота уже есть другой webhook. Он не изменён. Сначала проверь существующий обработчик.</p>',409);
       await api(env,'setMyCommands',{commands:[{command:'start',description:'Открыть меню'},{command:'help',description:'Как пользоваться'}]},fetcher);
-      await api(env,'setChatMenuButton',{menu_button:{type:'web_app',text:'Анализатор',web_app:{url:APP_URL}}},fetcher);
+      await api(env,'setChatMenuButton',{menu_button:{type:'web_app',text:'Читы для шашек',web_app:{url:APP_URL}}},fetcher);
       await api(env,'setWebhook',{url:target,secret_token:env.WEBHOOK_SECRET,allowed_updates:['message','callback_query']},fetcher);
       return page('<h1>Бот подключён</h1><p>Открой @shashkamovebot и отправь /start. В ответ появятся четыре кнопки.</p>');
     }catch(error){

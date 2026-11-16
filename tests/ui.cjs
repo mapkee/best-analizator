@@ -29,7 +29,13 @@ const worker=workers.at(-1),id=worker.message.requestId;
 assert.equal(worker.message.budgetMs,1000);
 worker.onmessage({data:{requestId:id,partial:true,move:{from:40,to:33,path:[33],captures:[],depth:1,nodes:20}}});
 assert.equal(run('thinking'),true);
-assert.match(elements.get('status').textContent,/уточняю/);
+assert.equal(run('hint'),null);
+assert.equal(elements.get('arrows').children.length,0);
+worker.onmessage({data:{requestId:id,partial:true,move:{from:42,to:35,path:[35],captures:[],depth:2,nodes:40}}});
+assert.equal(run('hint'),null);
+assert.equal(elements.get('arrows').children.length,0);
+worker.onmessage({data:{requestId:id,partial:false,move:{from:40,to:33,path:[33],captures:[],depth:9,nodes:80}}});
+assert.equal(run('thinking'),false);
 assert.equal(elements.get('arrows').children.filter(el=>el.attributes['marker-end']).length,1);
 run('clickCell(40);clickCell(33)');
 assert.equal(run('turn'),-1);
@@ -38,6 +44,64 @@ const oldBoard=run('JSON.stringify(board)');
 worker.onmessage({data:{requestId:id,partial:false,move:{from:40,to:33,path:[33],captures:[],depth:9}}});
 assert.equal(run('JSON.stringify(board)'),oldBoard);
 assert.equal(run('hint'),null);
+// A capture is entered at every landing; turn changes only after the full path.
+function position(pieces){
+  const b=Array(64).fill(0);for(const [i,p] of pieces)b[i]=p;
+  run(`cancelAnalysis();board=${JSON.stringify(b)};turn=1;myColor=1;selected=null;hint=null;pendingCapture=null;history=[];render()`);
+  return b;
+}
+const captureBoard=position([[42,1],[35,-1],[21,-1],[19,-1]]);
+run('clickCell(42);clickCell(28)');
+assert.equal(run('turn'),1);
+assert.equal(run('board[28]'),1);
+assert.equal(run('board[35]'),0);
+assert.deepEqual(Array.from(run('nextDestinations()')).sort((a,b)=>a-b),[10,14]);
+const inProgress=run('JSON.stringify(board)');
+run('clickCell(63);setColor(-1);setAnalysisMode(4500);analyze()');
+assert.equal(run('JSON.stringify(board)'),inProgress);
+assert.equal(run('myColor'),1);
+run('clickCell(14)');
+assert.equal(run('turn'),-1);
+assert.equal(run('board[14]'),1);
+assert.equal(run('pendingCapture'),null);
+assert.equal(run('history.length'),1);
+run('$("undoBtn").onclick()');
+assert.equal(run('JSON.stringify(board)'),JSON.stringify(captureBoard));
+assert.equal(run('turn'),1);
+run('clickCell(42);clickCell(28);$("undoBtn").onclick()');
+assert.equal(run('pendingCapture'),null);
+assert.equal(run('JSON.stringify(board)'),JSON.stringify(captureBoard));
+// Promotion during a combination continues with king landings from the full move.
+position([[19,1],[10,-1],[28,-1]]);
+const promotedMove=JSON.parse(run('JSON.stringify(moves(board,turn).find(m=>m.path[0]===1&&m.path[1]===37))'));
+run('clickCell(19);clickCell(1)');
+assert.equal(run('board[1]'),2);
+assert.equal(run('turn'),1);
+run('clickCell(37)');
+assert.equal(run('JSON.stringify(board)'),JSON.stringify(promotedMove.board));
+assert.equal(run('turn'),-1);
+// Complete many generated combinations step by step and compare final boards.
+let captureSeed=789;
+const randomInt=n=>{captureSeed=(Math.imul(captureSeed,1664525)+1013904223)>>>0;return (captureSeed>>>8)%n;};
+let combinations=0;
+for(let trial=0;trial<100;trial++){
+  const pieces=[];
+  for(let k=0;k<12;k++){const r=randomInt(8),c=2*randomInt(4)+((r+1)%2);pieces.push([r*8+c,[-2,-1,1,2][randomInt(4)]])}
+  position(pieces);
+  const candidate=JSON.parse(run('JSON.stringify(moves(board,turn).find(m=>m.captures.length>1)||null)'));
+  if(!candidate)continue;
+  run(`clickCell(${candidate.from})`);
+  for(let step=0;step<candidate.path.length;step++){
+    run(`clickCell(${candidate.path[step]})`);
+    assert.equal(run('turn'),step===candidate.path.length-1?-1:1);
+  }
+  assert.equal(run('JSON.stringify(board)'),JSON.stringify(candidate.board));combinations++;
+}
+assert.ok(combinations>0);
+position([[42,1],[35,-1],[21,-1]]);
+run('clickCell(42);clickCell(28);$("newBtn").onclick()');
+assert.equal(run('pendingCapture'),null);
+assert.equal(run('JSON.stringify(board)'),run('JSON.stringify(startBoard())'));
 run('drawArrow()');
 for(const color of [1,-1]){
   run(`myColor=${color};hint={from:40,path:[26,12],captures:[33,19]};drawArrow()`);

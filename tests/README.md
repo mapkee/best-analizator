@@ -16,16 +16,24 @@ These optimizations preserve the existing move rules and evaluator. Existing
 rule interpretation and quiescence behavior have not been independently
 validated against an official draughts rules reference.
 
-Run `node tests/ui.cjs` to verify incremental worker results, selecting and
-playing a move during analysis, ignoring stale replies after cancellation,
-and valid SVG route geometry in both board orientations. This uses a minimal
+Run `node tests/ui.cjs` to verify that incremental worker results do not show
+or move the arrow, that final results display once, and that stale replies are
+ignored after cancellation. It also checks step-by-step captures, branching
+routes, promotion during a capture, undo, reset, and SVG geometry in both board
+orientations. This uses a minimal
 DOM harness, not a browser rendering test. The worker also runs a real 500 ms
 search and reports first-hint latency and final response time.
 
-The UI displays each completed search iteration. The default fast mode uses a
+The UI displays search progress but only draws the final completed result.
+The default fast mode uses a
 1-second search budget; deep mode retains the original 4.5-second budget. The
 shorter budget can reduce completed depth and move quality; choose deep mode
-when analysis quality matters more than latency. Early hints are provisional; their move can change
-as deeper iterations finish. Selecting a piece, undoing, starting a game or
+when analysis quality matters more than latency. No provisional arrows are
+displayed. Selecting a piece, undoing, starting a game or
 changing sides terminates the old worker so obsolete analysis cannot overwrite
 the current board's hint.
+
+A capture is committed to history as one move. Its intermediate landings are
+selected from full legal routes generated for the original position; the UI
+does not regenerate routes from a partially captured board. This retains
+the original engine's capture and promotion behavior.

@@ -1,5 +1,6 @@
 const APP_URL = 'https://mapkee.github.io/onestep/';
 const DEVELOPER_URL = 'https://t.me/mapkee';
+const INTRO_ANIMATION = 'https://mapkee.github.io/onestep/docs/demos/six-capture.mp4';
 export const HELP_TEXT = 'Как пользоваться\n\n1. Открой приложение и выбери свою сторону.\n2. Записывай ходы: нажми на шашку, затем на клетку назначения.\n3. После хода соперника подсказка появится автоматически.\n4. Синяя стрелка показывает маршрут хода. Стрелка появляется один раз, после завершения поиска. В серии взятий нажимай каждую клетку приземления по очереди.\n5. Быстрый режим — около секунды, глубокий — около 4,5 секунды.\n\nПозицию нужно переносить вручную. Для исправления хода есть «Отменить».';
 export function keyboard() {
   return {inline_keyboard:[
@@ -50,11 +51,14 @@ export async function handleUpdate(update,env,fetcher=fetch) {
   const help=/^\/help(?:@shashkamovebot)?$/.test(command);
   const start=/^\/start(?:@shashkamovebot)?$/.test(command);
   if(!help&&!start)return;
-  await call('sendMessage',{
-    chat_id:message.chat.id,
-    text:help?HELP_TEXT:'OneStep\n\nБудь на ход дальше. Выбери свою сторону, записывай ходы и разбирай продолжения на интерактивной доске.\n\nОткрой приложение, посмотри инструкцию или напиши разработчику.',
-    reply_markup:keyboard()
-  });
+  if(help){await call('sendMessage',{chat_id:message.chat.id,text:HELP_TEXT,reply_markup:keyboard()});return;}
+  const welcome='OneStep\n\nШесть взятий за один ход — пример из нашего приложения.\n\nВыбери свою сторону, записывай ходы и находи сильные продолжения. Будь на ход дальше.';
+  try{
+    await call('sendAnimation',{chat_id:message.chat.id,animation:INTRO_ANIMATION,caption:welcome,duration:7,width:720,height:900,reply_markup:keyboard()});
+  }catch{
+    // Keep the menu usable if Telegram cannot fetch the media.
+    await call('sendMessage',{chat_id:message.chat.id,text:welcome,reply_markup:keyboard()});
+  }
 }
 const page=(body,status=200)=>new Response(`<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Настройка бота</title><style>body{font:16px system-ui;background:#080e1b;color:#eaf3ff;max-width:520px;margin:60px auto;padding:20px;line-height:1.6}input,button{box-sizing:border-box;width:100%;padding:14px;margin:10px 0;border-radius:10px;border:1px solid #345273;background:#14243a;color:white}button{background:#2454c6;cursor:pointer}</style>${body}</html>`,{status,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','content-security-policy':"default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",'referrer-policy':'no-referrer'}});
 export async function handleRequest(request,env,fetcher=fetch) {

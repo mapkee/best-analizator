@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const fixture=JSON.parse(fs.readFileSync('docs/demos/six-capture.json','utf8'));
+const context=vm.createContext({performance,self:{}});
+vm.runInContext(fs.readFileSync('engine-worker.js','utf8')+';globalThis.generate=moves;',context);
+const match=context.generate(fixture.board,1).find(move=>move.from===fixture.from&&JSON.stringify(move.path)===JSON.stringify(fixture.path));
+assert.ok(match,'The recorded demonstration must be a legal full move');
+assert.equal(match.captures.length,6);
+assert.equal(match.board.filter(piece=>piece<0).length,0);
+assert.equal(match.board[fixture.path.at(-1)],2,'The moving man promotes during the combination');
+console.log('Demo passed: six captures, promotion and no remaining opponent pieces.');

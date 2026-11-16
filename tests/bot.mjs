@@ -15,7 +15,8 @@ assert.equal((await handleRequest(webhook(start,'wrong'),env,mockFetch)).status,
 assert.equal(calls.length,0);
 assert.equal((await handleRequest(webhook(start),{},mockFetch)).status,503);
 assert.equal((await handleRequest(webhook(start),env,mockFetch)).status,200);
-assert.equal(calls[0].method,'sendMessage');
+assert.equal(calls[0].method,'sendAnimation');
+assert.equal(calls[0].payload.animation,'https://mapkee.github.io/onestep/docs/demos/six-capture.mp4');
 assert.equal(calls[0].payload.chat_id,12);
 assert.deepEqual(calls[0].payload.reply_markup,keyboard());
 assert.equal(keyboard().inline_keyboard.length,4);
@@ -74,6 +75,13 @@ try{
   assert.ok(calls.some(call=>call.method==='setWebhook'));
   calls.length=0;
   assert.equal((await worker.fetch(webhook(start),env,executionContext)).status,200);
-  assert.equal(calls[0].method,'sendMessage');
+  assert.equal(calls[0].method,'sendAnimation');
 }finally{globalThis.fetch=originalFetch;}
 console.log('Bot tests passed. No real Telegram messages sent.');
+calls.length=0;
+await handleUpdate(start,env,async(url,options)=>{
+  if(url.endsWith('/sendAnimation')){calls.push({method:'sendAnimation'});return Response.json({ok:false,error_code:400,description:'Media unavailable'},{status:400});}
+  return mockFetch(url,options);
+});
+assert.deepEqual(calls.map(call=>call.method),['sendAnimation','sendMessage']);
+assert.deepEqual(calls[1].payload.reply_markup,keyboard());

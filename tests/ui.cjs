@@ -3,7 +3,7 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const {performance}=require('node:perf_hooks');
 class Element {
-  constructor(){this.children=[];this.attributes={};this.classList={add(){},toggle(){}};}
+  constructor(){this.children=[];this.attributes={};this.classList={add(){},toggle(){}};this.style={setProperty(k,v){this[k]=v;}};}
   set innerHTML(value){this.children=[];}
   appendChild(el){this.children.push(el);return el;}
   setAttribute(k,v){this.attributes[k]=String(v);}
@@ -47,7 +47,7 @@ assert.equal(run('hint'),null);
 // A capture is entered at every landing; turn changes only after the full path.
 function position(pieces){
   const b=Array(64).fill(0);for(const [i,p] of pieces)b[i]=p;
-  run(`cancelAnalysis();board=${JSON.stringify(b)};turn=1;myColor=1;selected=null;hint=null;pendingCapture=null;history=[];render()`);
+  run(`cancelAnalysis();closeResult();gameOver=null;board=${JSON.stringify(b)};turn=1;myColor=1;selected=null;hint=null;pendingCapture=null;history=[];render()`);
   return b;
 }
 const captureBoard=position([[42,1],[35,-1],[21,-1],[19,-1]]);
@@ -156,6 +156,25 @@ assert.equal(run('animating'),false);
 assert.equal(animations.length,priorAnimations);
 delete windowForMotion.matchMedia;
 delete Element.prototype.animate;
+// A game ends after the whole move, including positions with blocked pieces.
+position([[42,1],[35,-1]]);run('clickCell(42);clickCell(28)');
+assert.equal(run('gameOver'),1);
+assert.equal(elements.get('resultTitle').textContent,'Победа!');
+assert.equal(elements.get('fireworks').children.length,104);
+assert.equal(elements.get('resultDialog').hidden,false);
+run('$("undoBtn").onclick()');
+assert.equal(run('gameOver'),null);
+assert.equal(elements.get('fireworks').children.length,0);
+assert.equal(elements.get('resultDialog').hidden,true);
+position([[42,1],[56,-1]]);run('clickCell(42);clickCell(33)');
+assert.equal(run('gameOver'),1);
+position([[1,1]]);run('checkGameEnd()');
+assert.equal(run('gameOver'),-1);
+assert.equal(elements.get('resultTitle').textContent,'Победа соперника');
+assert.equal(elements.get('fireworks').children.length,0);
+run('$("resultNew").onclick()');
+assert.equal(run('gameOver'),null);
+assert.equal(run('JSON.stringify(board)'),run('JSON.stringify(startBoard())'));
 // Exercise the real worker protocol: completed iterations arrive before final.
 const reports=[],engine=vm.createContext({performance,self:{postMessage(data){reports.push({data,time:performance.now()});}}});
 vm.runInContext(fs.readFileSync('engine-worker.js','utf8'),engine);

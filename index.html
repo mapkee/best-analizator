@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030507"><meta name="mobile-web-app-capable" content="yes">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<title>На шаг впереди — читы для шашек</title>
+<title>OneStep — читы для шашек</title>
 <link rel="icon" type="image/png" href="docs/bot-avatar-selected.png">
 <style>
 :root{color-scheme:dark;--bg:#070d18;--panel:#101d30;--line:#294463;--blue:#38bdf8;--cyan:#67e8f9;--txt:#eff7ff;--muted:#91a6c2}
@@ -26,10 +26,10 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
 @keyframes breathe{50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.status.analyzing:before{animation:none}}
 .choice,.btn{display:flex;align-items:center;justify-content:center;gap:8px}.icon{width:20px;height:20px;flex:0 0 20px}.choice:focus-visible,.btn:focus-visible{outline:2px solid #93c5fd;outline-offset:3px}#fastMode,#deepMode{font-size:12px;padding:11px 6px}
-</style><link rel="stylesheet" href="ui.css?v=12"></head>
+</style><link rel="stylesheet" href="ui.css?v=13"></head>
 <body>
 <header class="compact-header">
- <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar-selected.png" alt="Аватарка бота"><div><h1>На шаг впереди</h1><p>Читы для шашек</p></div></div>
+ <div class="compact-brand"><img class="app-mark" src="docs/bot-avatar-selected.png" alt="Аватарка бота"><div><h1>OneStep</h1><p>Читы для шашек</p></div></div>
  <a class="contact-link" href="https://t.me/mapkee" aria-label="Написать разработчику в Telegram"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 3.7 18 20c-.3 1.2-1 1.5-2 .9l-5.3-3.9-2.6 2.5c-.3.3-.5.5-1 .5l.4-5.4 9.8-8.8c.4-.4-.1-.6-.6-.3L4.6 13.1l-5.2-1.6c-1.1-.3-1.1-1.1.2-1.6L20 2.2c.9-.3 1.8.2 1.5 1.5Z" transform="translate(1 1) scale(.92)"/></svg><span>Telegram</span></a>
 </header>
 <section class="app" id="play" aria-label="Шашечная доска и параметры">
@@ -46,11 +46,18 @@ header{text-align:center;margin:0 0 15px}.logo{font-size:clamp(25px,5vw,40px);fo
   </section>
  </aside>
 </section>
+<div id="fireworks" class="fireworks" aria-hidden="true" hidden></div>
+<dialog id="resultDialog" class="result-dialog" aria-labelledby="resultTitle" aria-describedby="resultText" hidden>
+ <button id="resultClose" class="result-close" aria-label="Закрыть результат">×</button>
+ <div class="result-emblem" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><path d="m12 23 10 8 10-17 10 17 10-8-6 26H18l-6-26Z" fill="url(#crown-metal)"/><path d="M19 54h26" stroke="#d6bd8b" stroke-width="3" stroke-linecap="round"/><defs><linearGradient id="crown-metal" x2="64" y2="64" gradientUnits="userSpaceOnUse"><stop stop-color="#f5e6bc"/><stop offset="1" stop-color="#a17b46"/></linearGradient></defs></svg></div>
+ <p class="result-eyebrow">ПАРТИЯ ЗАВЕРШЕНА</p><h2 id="resultTitle">Победа!</h2><p id="resultText"></p>
+ <button class="btn primary" id="resultNew">Новая партия</button>
+</dialog>
 <script>
 (()=>{const tg=window.Telegram?.WebApp;if(tg){try{tg.ready();tg.expand();tg.setHeaderColor?.("#030507");tg.setBackgroundColor?.("#030507");tg.disableVerticalSwipes?.()}catch(e){}}})();
 "use strict";
 const $=id=>document.getElementById(id), dirs=[[-1,-1],[-1,1],[1,-1],[1,1]], idx=(r,c)=>r*8+c, rc=i=>[i>>3,i&7], inside=(r,c)=>r>=0&&r<8&&c>=0&&c<8, sgn=Math.sign, isKing=p=>Math.abs(p)===2;
-let board,turn=1,myColor=1,selected=null,hint=null,history=[],worker=null,thinking=false,requestId=0,analysisBudget=1000,pendingCapture=null,moveAnimation=null,animating=false;
+let board,turn=1,myColor=1,selected=null,hint=null,history=[],worker=null,thinking=false,requestId=0,analysisBudget=1000,pendingCapture=null,moveAnimation=null,animating=false,gameOver=null;
 function startBoard(){const b=Array(64).fill(0);for(let r=0;r<3;r++)for(let c=0;c<8;c++)if((r+c)&1)b[idx(r,c)]=-1;for(let r=5;r<8;r++)for(let c=0;c<8;c++)if((r+c)&1)b[idx(r,c)]=1;return b}
 function coord(i){const [r,c]=rc(i);return "abcdefgh"[c]+(8-r)}
 function count(){let w=0,k=0;for(const p of board){if(p>0)w++;if(p<0)k++}return [w,k]}
@@ -92,7 +99,7 @@ function animateMove(piece,motion){
   animating=true;
   const animation=piece.animate([{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"translate(0px,0px)"}],{duration:220,easing:"cubic-bezier(.22,.72,.2,1)"});
   moveAnimation=animation;
-  const complete=()=>{if(moveAnimation===animation){moveAnimation=null;animating=false;updatePanel();}};
+  const complete=()=>{if(moveAnimation===animation){moveAnimation=null;animating=false;updatePanel();checkGameEnd();}};
   animation.onfinish=complete;animation.oncancel=complete;updatePanel();
 }
 function drawArrow(){
@@ -116,9 +123,32 @@ function drawArrow(){
   }
 }
 function cancelAnalysis(){cancelMoveAnimation();if(worker){worker.terminate();worker=null}thinking=false;requestId++;}
-function updatePanel(){const [w,b]=count();$("wc").textContent=w;$("bc").textContent=b;$("turnLabel").textContent=turn===myColor?"ТВОЙ ХОД":"ХОД СОПЕРНИКА";$("whiteChoice").classList.toggle("active",myColor===1);$("blackChoice").classList.toggle("active",myColor===-1);$("hintBtn").disabled=thinking||animating||turn!==myColor||Boolean(pendingCapture)}
+function updatePanel(){const [w,b]=count();$("wc").textContent=w;$("bc").textContent=b;$("turnLabel").textContent=turn===myColor?"ТВОЙ ХОД":"ХОД СОПЕРНИКА";$("whiteChoice").classList.toggle("active",myColor===1);$("blackChoice").classList.toggle("active",myColor===-1);$("hintBtn").disabled=gameOver!==null||thinking||animating||turn!==myColor||Boolean(pendingCapture)}
+function closeResult(){const dialog=$("resultDialog");if(dialog.open)dialog.close();dialog.hidden=true;$("fireworks").innerHTML="";$("fireworks").hidden=true;}
+function checkGameEnd(){
+  if(gameOver!==null)return true;
+  if(pendingCapture||animating||moves(board,turn).length)return false;
+  gameOver=-turn;cancelAnalysis();hint=null;updatePanel();
+  const won=gameOver===myColor;
+  $("resultTitle").textContent=won?"Победа!":"Победа соперника";
+  $("resultText").textContent=(gameOver===1?"Белые":"Чёрные")+" выиграли: у соперника нет допустимых ходов.";
+  status(won?"Победа! Отличная партия.":"Партия завершена. Победил соперник.");
+  const dialog=$("resultDialog");dialog.hidden=false;dialog.showModal?.();$("resultClose").focus?.();
+  if(won&&!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches){
+    const field=$("fireworks");field.hidden=false;field.innerHTML="";
+    for(let burst=0;burst<4;burst++)for(let n=0;n<26;n++){
+      const spark=document.createElement("i"),angle=n/26*Math.PI*2,range=65+Math.random()*135;
+      spark.className="firework-spark";spark.style.left=[23,77,37,65][burst]+"%";spark.style.top=[35,29,62,57][burst]+"%";
+      spark.style.setProperty("--dx",Math.cos(angle)*range+"px");spark.style.setProperty("--dy",Math.sin(angle)*range+"px");spark.style.setProperty("--fall",Math.sin(angle)*range+55+"px");
+      spark.style.setProperty("--delay",burst*.38+"s");spark.style.background=["#d8b879","#dfeeff","#8daed6"][n%3];field.appendChild(spark);
+    }
+  }
+  return true;
+}
+$("resultClose").onclick=closeResult;$("resultNew").onclick=()=>$("newBtn").onclick();$("resultDialog").addEventListener("cancel",e=>{e.preventDefault();closeResult()});
 function finishMove(motion){
   pendingCapture=null;turn=-turn;selected=null;hint=null;render(motion);
+  if(checkGameEnd())return;
   if(turn===myColor)autoHint();else status("Ход записан. Ожидаю ход соперника.");
 }
 function advanceCapture(to){
@@ -134,7 +164,7 @@ function advanceCapture(to){
   render({from,to});status("Взято: "+sequence.step+". Продолжи этой шашкой — выбери следующую подсвеченную клетку.");
 }
 function clickCell(i){
-  if(thinking||animating||(rc(i)[0]+rc(i)[1])%2===0)return;
+  if(gameOver!==null||thinking||animating||(rc(i)[0]+rc(i)[1])%2===0)return;
   if(pendingCapture){advanceCapture(i);return;}
   if(selected!==null){
     const candidates=moves(board,turn).filter(m=>m.from===selected&&m.path[0]===i);
@@ -148,9 +178,9 @@ function clickCell(i){
   if(sgn(board[i])===turn){cancelAnalysis();selected=i;hint=null;render();status("Выбери подсвеченную клетку. В серии взятий нажимай каждое приземление по очереди.")}
   else{selected=null;render()}
 }
-function analyze(){if(turn!==myColor||thinking||animating||pendingCapture)return;if(!worker){try{worker=new Worker("engine-worker.js?v=4")}catch(e){status("Не удалось запустить движок: "+e.message);return}worker.onmessage=e=>{const d=e.data;if(d.requestId!==requestId)return;if(d.partial){$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");status("Проверяю варианты… Глубина "+d.move.depth+".");return;}thinking=false;if(d.error){thinking=false;status("Ошибка движка: "+d.error);render();return}if(!d.move){thinking=false;render();status("У тебя нет допустимых ходов. Партия окончена.");return}hint=d.move;$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");render();const route=[d.move.from,...d.move.path].map(coord).join(" → ");status(`Рекомендуемый ход: ${route}. Глубина ${d.move.depth}. Можно ходить.`)};worker.onerror=e=>{thinking=false;status("Ошибка Worker. Проверь, что engine-worker.js загружен рядом с index.html.");}}
+function analyze(){if(gameOver!==null||turn!==myColor||thinking||animating||pendingCapture)return;if(!worker){try{worker=new Worker("engine-worker.js?v=4")}catch(e){status("Не удалось запустить движок: "+e.message);return}worker.onmessage=e=>{const d=e.data;if(d.requestId!==requestId)return;if(d.partial){$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");status("Проверяю варианты… Глубина "+d.move.depth+".");return;}thinking=false;if(d.error){thinking=false;status("Ошибка движка: "+d.error);render();return}if(!d.move){thinking=false;render();checkGameEnd();return}hint=d.move;$("depth").textContent=d.move.depth;$("nodes").textContent=Number(d.move.nodes||0).toLocaleString("ru-RU");render();const route=[d.move.from,...d.move.path].map(coord).join(" → ");status(`Рекомендуемый ход: ${route}. Глубина ${d.move.depth}. Можно ходить.`)};worker.onerror=e=>{thinking=false;status("Ошибка Worker. Проверь, что engine-worker.js загружен рядом с index.html.");}}
 thinking=true;hint=null;selected=null;render();status("Ищу сильное продолжение… Стрелка появится после проверки.");requestId++;worker.postMessage({board:board.slice(),player:turn,budgetMs:analysisBudget,requestId})}
-function autoHint(){if(turn===myColor&&!thinking)setTimeout(()=>{if(turn===myColor&&!thinking){if(animating)autoHint();else analyze();}},120)}
+function autoHint(){if(gameOver===null&&turn===myColor&&!thinking)setTimeout(()=>{if(gameOver===null&&turn===myColor&&!thinking){if(animating)autoHint();else analyze();}},120)}
 function setAnalysisMode(budget){
   if(pendingCapture){status("Сначала заверши серию взятий или нажми «Отменить».");return;}
   cancelAnalysis();analysisBudget=budget;
@@ -160,7 +190,7 @@ function setAnalysisMode(budget){
 $("fastMode").onclick=()=>setAnalysisMode(1000);$("deepMode").onclick=()=>setAnalysisMode(4500);
 function setColor(c){if(pendingCapture){status("Сначала заверши серию взятий или нажми «Отменить».");return;}cancelAnalysis();myColor=c;selected=null;hint=null;render();if(turn===myColor)autoHint();else status("Ожидаю ход соперника. После его хода подсказка появится автоматически.")}
 $("whiteChoice").onclick=()=>setColor(1);$("blackChoice").onclick=()=>setColor(-1);$("hintBtn").onclick=analyze;
-$("undoBtn").onclick=()=>{cancelAnalysis();if(!history.length){status("Пока нечего отменять.");return}const s=history.pop();pendingCapture=null;board=s.board;turn=s.turn;hint=null;selected=null;render();status(turn===myColor?"Твой ход.":"Ход соперника.")};
-$("newBtn").onclick=()=>{cancelAnalysis();pendingCapture=null;board=startBoard();turn=1;history=[];hint=null;selected=null;$("depth").textContent="—";$("nodes").textContent="—";render();if(turn===myColor)autoHint();else status("Новая партия. Ожидаю ход соперника.")};
+$("undoBtn").onclick=()=>{cancelAnalysis();if(!history.length){status("Пока нечего отменять.");return}const s=history.pop();closeResult();gameOver=null;pendingCapture=null;board=s.board;turn=s.turn;hint=null;selected=null;render();status(turn===myColor?"Твой ход.":"Ход соперника.")};
+$("newBtn").onclick=()=>{cancelAnalysis();closeResult();gameOver=null;pendingCapture=null;board=startBoard();turn=1;history=[];hint=null;selected=null;$("depth").textContent="—";$("nodes").textContent="—";render();if(turn===myColor)autoHint();else status("Новая партия. Ожидаю ход соперника.")};
 board=startBoard();render();status("Выбери сторону и запиши ход на доске.");
 </script></body></html>

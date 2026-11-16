@@ -90,3 +90,14 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 @keyframes target-glow{0%,100%{opacity:.45;transform:scale(.87)}50%{opacity:1;transform:scale(1.07)}}
 @keyframes target-ripple{0%{opacity:0;transform:scale(.55)}15%{opacity:.7}85%,100%{opacity:0;transform:scale(1.9)}}
 @media(prefers-reduced-motion:reduce){.cell.hint-target:before,.cell.hint-target:after{animation:none;transform:none}.cell.hint-target:before{opacity:.7}.cell.hint-target:after{opacity:.5}}
+
+[hidden]{display:none!important}
+.result-dialog{position:fixed;box-sizing:border-box;inset:0;margin:auto;width:min(380px,calc(100% - 36px));border:1px solid #c6d6e44a;border-top-color:#ecdfbb80;border-radius:24px;padding:34px 25px 25px;background:radial-gradient(ellipse at 50% 0,#70634538,transparent 65%),linear-gradient(145deg,#192331,#090e17);color:#eef3fa;text-align:center;box-shadow:0 24px 90px #0009,inset 0 1px 0 #ffffff12;overflow:visible;animation:result-appear .4s cubic-bezier(.2,.8,.2,1)}
+.result-dialog::backdrop{background:#02050ac4;backdrop-filter:blur(6px)}
+.result-close{position:absolute;right:14px;top:12px;border:0;background:none;color:#a8b7c9;font:24px system-ui;cursor:pointer;padding:3px 8px}
+.result-emblem{width:86px;height:86px;margin:0 auto 21px;border-radius:50%;border:1px solid #c9b38640;background:radial-gradient(circle,#d3b8731c,transparent 70%);box-shadow:0 0 35px #c8a85e14;display:grid;place-items:center}.result-emblem svg{width:58px;height:58px}
+.result-eyebrow{font-size:9px;letter-spacing:2px;color:#c0ad84;margin:0 0 11px}.result-dialog h2{font-size:36px;letter-spacing:-1px;margin:0 0 12px;font-weight:750}.result-dialog #resultText{font-size:13px;line-height:1.7;color:#9fb1c8;margin:0 0 24px}.result-dialog .btn{width:100%}
+.fireworks{position:fixed;inset:0;z-index:1000;pointer-events:none;overflow:hidden}.firework-spark{position:absolute;width:4px;height:4px;border-radius:50%;opacity:0;box-shadow:0 0 7px currentColor;animation:firework-burst 2.4s var(--delay) cubic-bezier(.16,.65,.25,1) both}
+@keyframes firework-burst{0%{opacity:0;transform:translate(0,0) scale(.2)}6%{opacity:1}65%{opacity:.8;transform:translate(var(--dx),var(--dy)) scale(.85)}100%{opacity:0;transform:translate(var(--dx),var(--fall)) scale(.1)}}
+@keyframes result-appear{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.result-dialog{animation:none}.fireworks{display:none}}

@@ -32,6 +32,10 @@ appearance still require visual verification in a real browser.
 The board uses a straight top-down view with shallow checker edges and a
 beveled frame. Move animation uses local board dimensions without perspective.
 
+Game-end checks cover the final capture, blocked opponents, losses without
+celebration, and undo/reset cleanup. Fireworks are finite and disabled when
+reduced motion is requested. Draw adjudication is not implemented.
+
 The UI displays search progress but only draws the final completed result.
 The default fast mode uses a
 1-second search budget; deep mode retains the original 4.5-second budget. The

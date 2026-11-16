@@ -5,7 +5,7 @@ Cloudflare Worker отвечает на `/start` четырьмя кнопкам
 1. **Открыть приложение** — запускает анализатор внутри Telegram.
 2. **Как пользоваться** — отправляет инструкцию прямо в чат.
 3. **Написать разработчику** — открывает https://t.me/mapkee.
-4. **GitHub** — открывает https://github.com/mapkee/one-step-ahead.
+4. **GitHub** — открывает https://github.com/mapkee/onestep.
 
 Сайт продолжает работать на GitHub Pages. Worker обрабатывает только сообщения
 Telegram; база данных для этой реализации не нужна.

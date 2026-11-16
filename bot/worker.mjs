@@ -4,10 +4,10 @@ const INTRO_ANIMATION = 'https://mapkee.github.io/onestep/docs/demos/six-capture
 export const HELP_TEXT = 'Как пользоваться\n\n1. Открой приложение и выбери свою сторону.\n2. Записывай ходы: нажми на шашку, затем на клетку назначения.\n3. После хода соперника подсказка появится автоматически.\n4. Синяя стрелка показывает маршрут хода. Стрелка появляется один раз, после завершения поиска. В серии взятий нажимай каждую клетку приземления по очереди.\n5. Быстрый режим — около секунды, глубокий — около 4,5 секунды.\n\nПозицию нужно переносить вручную. Для исправления хода есть «Отменить».';
 export function keyboard() {
   return {inline_keyboard:[
-    [{text:'Открыть OneStep',web_app:{url:APP_URL}}],
+    [{text:'Открыть',web_app:{url:APP_URL}}],
     [{text:'Инструкция',callback_data:'help'}],
     [{text:'Написать разработчику',url:DEVELOPER_URL}],
-    [{text:'OneStep на GitHub',url:'https://github.com/mapkee/onestep'}]
+    [{text:'GitHub',url:'https://github.com/mapkee/onestep'}]
   ]};
 }
 class TelegramError extends Error {

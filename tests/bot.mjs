@@ -20,7 +20,7 @@ assert.equal(calls[0].payload.animation,'https://mapkee.github.io/onestep/docs/d
 assert.equal(calls[0].payload.chat_id,12);
 assert.deepEqual(calls[0].payload.reply_markup,keyboard());
 assert.equal(keyboard().inline_keyboard.length,4);
-assert.deepEqual(keyboard().inline_keyboard.at(-1),[{text:'OneStep на GitHub',url:'https://github.com/mapkee/onestep'}]);
+assert.deepEqual(keyboard().inline_keyboard.at(-1),[{text:'GitHub',url:'https://github.com/mapkee/onestep'}]);
 assert.equal(keyboard().inline_keyboard[0][0].web_app.url,'https://mapkee.github.io/onestep/');
 assert.equal(keyboard().inline_keyboard[2][0].url,'https://t.me/mapkee');
 calls.length=0;

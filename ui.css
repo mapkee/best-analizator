@@ -22,3 +22,35 @@ a{color:inherit;text-decoration:none}
 @media(max-width:760px){body{padding:0 12px calc(22px + env(safe-area-inset-bottom))}.site-nav{min-height:62px;padding-top:env(safe-area-inset-top);max-width:560px}.wordmark{font-size:10px;letter-spacing:.5px;gap:7px}.brand-mark{width:24px;height:24px}.nav-links{gap:12px;font-size:11px}.nav-links .nav-app{display:none}.nav-links .nav-telegram{padding:8px 10px}.brand{max-width:560px;grid-template-columns:1fr;padding:27px 2px 25px;gap:0}.logo{font-size:38px;letter-spacing:-1.8px;margin-bottom:10px}.hero-eyebrow{font-size:9px;margin-bottom:13px}.tag{font-size:17px}.brand-caption{font-size:12px;line-height:1.7;margin-top:12px;max-width:350px}.hero-visual{display:none}.hero-meta{font-size:10px;margin-top:16px;gap:18px}.app{max-width:560px;grid-template-columns:minmax(0,1fr);gap:15px}.board-card{padding:10px}.board-heading{padding-bottom:10px}.panel{padding:18px;gap:13px}.square-label{font-size:9px}.feature-strip{max-width:560px;grid-template-columns:1fr;gap:10px;margin-top:18px}.feature-card{padding:15px 17px}.feature-card h2{margin:5px 0;font-size:14px}.feature-card p{font-size:11px}.site-footer{max-width:560px;align-items:flex-start;line-height:1.6;margin-top:22px}.footer-links{gap:14px}}
 @media(max-width:360px){.nav-links>a:not(.nav-telegram){display:none}.logo{font-size:34px}.wordmark{font-size:9px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.choice,.btn{transition:none}}
+
+/* Frosted glass controls: tint, edge reflections and a tactile press. */
+.panel{background:radial-gradient(ellipse at 15% 18%,#18496a24,transparent 70%),#111317}
+.choice,.btn,.nav-links .nav-telegram{
+  position:relative;isolation:isolate;overflow:hidden;
+  border:1px solid #dceeff26;border-top-color:#e9f5ff4d;border-bottom-color:#adc9e516;
+  border-radius:16px;color:#e1eaf5;
+  background:linear-gradient(165deg,#d3eaff1f 0%,#9dc5ef09 48%,#a8c9ed0e 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
+  box-shadow:inset 0 1px 0 #ffffff14,inset 0 -1px 0 #ffffff05,0 4px 12px #0003;
+  text-shadow:0 1px 2px #0003;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.choice::before,.btn::before,.nav-links .nav-telegram::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(ellipse at 14% 0%,#ffffff18,transparent 63%),linear-gradient(110deg,transparent 25%,#ffffff07 48%,transparent 70%);
+}
+.choice:hover,.btn:not(:disabled):hover{background:linear-gradient(165deg,#d3eaff1f,#9dc5ef09 48%,#a8c9ed0e);border-color:#dceeff26;border-top-color:#e9f5ff4d}
+.choice.active{background:linear-gradient(155deg,#69cdff40,#259ce923 55%,#1376ba28);border-color:#88d8ff66;border-top-color:#d4f3ff8c;color:#effaff;box-shadow:inset 0 1px 0 #f0fbff30,inset 0 -1px 0 #5cc7ff14,0 0 18px #1b9fe915,0 4px 12px #0003}
+.btn.primary,.btn.primary:not(:disabled):hover{color:#f2fbff;background:linear-gradient(150deg,#62d2ff80,#139ae5a8 52%,#287ed0a3);border-color:#91dfff80;border-top-color:#e2f8ffc2;box-shadow:inset 0 1px 0 #f1fbff52,inset 0 -1px 0 #68bded22,0 6px 22px #008bdb24;text-shadow:0 1px 3px #07508280}
+.nav-links .nav-telegram{border-radius:12px;color:#d5efff}
+.choice:focus-visible,.btn:focus-visible,.nav-links .nav-telegram:focus-visible{outline:2px solid #a2ddff;outline-offset:3px}
+.btn:disabled{opacity:.4;box-shadow:inset 0 1px 0 #ffffff0a;cursor:not-allowed}
+.choice:active,.btn:not(:disabled):active,.nav-links .nav-telegram:active{transform:scale(.97);box-shadow:inset 0 2px 5px #0002,0 1px 4px #0002}
+@media(hover:hover){
+  .choice:hover,.btn:not(:disabled):hover,.nav-links .nav-telegram:hover{border-color:#c4e7ff5c;box-shadow:inset 0 1px 0 #ffffff2a,0 5px 18px #0003;transform:translateY(-1px)}
+  .choice:active,.btn:not(:disabled):active,.nav-links .nav-telegram:active{transform:scale(.97)}
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.choice,.btn,.nav-links .nav-telegram{background-color:#1c2937}}
+@media(prefers-reduced-transparency:reduce){.choice,.btn,.nav-links .nav-telegram{backdrop-filter:none;-webkit-backdrop-filter:none;background-color:#1c2937}}
+@media(prefers-reduced-motion:reduce){.choice,.btn,.nav-links .nav-telegram{transition:none;transform:none!important}}

@@ -1,0 +1,4 @@
+Edited with the built-in image_gen tool.
+Source: docs/bot-avatar-graphite.png
+
+Edit this exact bot emblem. Keep the checker disk, crown, forward arrow, angle, centered composition and restrained silver / midnight-blue color palette. Remove ALL smoke-like, misty, cloudy, swirly and marble texture from the checker cylinder, sides and top. Make its material perfectly clean smooth solid satin graphite metal with thin polished silver edges; no transparency inside the logo object, no vapor. Brighten the BACKGROUND to a readable medium-dark slate charcoal #252d39 with a very subtle clean checker pattern, not near black; leave enough contrast around the disk. Slightly brighter studio lighting on the checker top. No text. Keep the complete emblem inside generous circle-crop margins. Finished premium 3D industrial-design logo, no smoke or haze anywhere.

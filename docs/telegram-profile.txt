@@ -19,7 +19,7 @@
 Нажми «Открыть приложение», выбери свою сторону и начни разбор.
 
 АВАТАРКА (/setuserpic)
-docs/bot-avatar-graphite.png
+docs/bot-avatar-steel.png
 
 ОСНОВНАЯ КНОПКА
 Открыть приложение — встроенная кнопка Main Mini App в профиле Telegram.
